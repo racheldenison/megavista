@@ -1,13 +1,25 @@
 % rd_centerOfMassGroupMPInteraction
 
 %% setup
+scanner = '7T';
+
 MCol = [220 20 60]./255; % red
 PCol = [0 0 205]./255; % medium blue
 colors = {MCol, PCol};
 
 %% load data
-m = load('groupCenterOfMass_7T_N4_betaM_prop20_20120321');
-p = load('groupCenterOfMass_7T_N4_betaP_prop80_20120321');
+% m = load('groupCenterOfMass_7T_N4_betaM_prop20_20120321');
+% p = load('groupCenterOfMass_7T_N4_betaP_prop80_20120321');
+switch scanner
+    case '3T'
+        m = load('groupCenterOfMassTal_3T_N4_betaM_prop20_20130404.mat');
+        p = load('groupCenterOfMassTal_3T_N4_betaP_prop80_20130404.mat');
+    case '7T'
+        m = load('groupCenterOfMassTal_7T_N7_betaM_prop20_20130404.mat');
+        p = load('groupCenterOfMassTal_7T_N7_betaP_prop80_20130404.mat');
+    otherwise
+        error('scanner not recognized')
+end     
 
 nSubjects = numel(m.subjects);
 varThreshs = m.groupMean.varThreshs(:,1);
