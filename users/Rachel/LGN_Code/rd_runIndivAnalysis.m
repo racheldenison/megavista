@@ -2,7 +2,7 @@
 
 scanner = '7T';
 
-[subjectDirs3T subjectDirs7T] = rd_lgnSubjectsX09;
+[subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
 switch scanner
     case '3T'
         subjectDirs = subjectDirs3T;
