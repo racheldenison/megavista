@@ -3,16 +3,16 @@
 %% setup
 [subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
             
-scanner = '3T';
-mapName = 'betaM-P';
+scanner = '7T';
+mapName = 'betaP';
 hemis = [1 2];
 coordsType = 'Talairach'; %'Epi','Volume','Talairach'
 %%% note!! Volume coords are switched and flipped compared to Epi/Tal. Need
 %%% to fix if you want to plot these meaningfully.
 
 plotFigs = 1;
-saveFigs = 0;
-saveAnalysis = 0;
+saveFigs = 1;
+saveAnalysis = 1;
 
 MCol = [220 20 60]./255; % red
 PCol = [0 0 205]./255; % medium blue
@@ -58,23 +58,28 @@ switch coordsType
     otherwise
         error('coordsType not recognized')
 end
+analysisExtension = sprintf('centerOfMass%s_%s_prop%d_*', coordsExtension, mapName, round(prop*100));
 
 switch scanner
     case '3T'
         subjectDirs = subjectDirs3T;
-        voxelSize = [1.75 1.75 1.5];
-%         voxelSize = repmat([1.75 1.75 1.5],4,1);
-        
+        subjects = [1 2 4 5];
+%         voxelSize = [1.75 1.75 1.575]; % use this 1D voxelSize if you want
+%         the many thresholds plot to be in mm units
     case '7T'
         subjectDirs = subjectDirs7T;
+        subjects = [1 2 3 4 5 7 8];
 %         voxelSize = [1.5 1.5 1.5];
-        voxelSize = [1.3 1.3 1.3];
 end
-
-analysisExtension = sprintf('centerOfMass%s_%s_prop%d_*', coordsExtension, mapName, round(prop*100));
-% subjects = 1:size(subjectDirs,1);
-subjects = [1 2 4 5];
 nSubjects = numel(subjects);
+
+% get voxel size for each subject
+voxelSize = zeros(nSubjects,3);
+for iSubject = 1:nSubjects
+    subject = subjects(iSubject);
+    mrSess = rd_getMrSession(subjectDirs, scanner, subject);
+    voxelSize(iSubject,:) = mrSess.functionals(1).voxelSize;
+end
 
 % if voxelSize is a 2D array, assume it is subject x dim
 if size(voxelSize,1)==1
@@ -282,11 +287,11 @@ end
 
 %% save figs
 if saveFigs
-%     for iHemi = 1:numel(f0)
-%         plotSavePath = sprintf('%s/figures/groupCenterOfMass_%s_hemi%d_%s',...
-%             fileBaseDir, fileBaseSubjects, iHemi, fileBaseTail);
-%         print(f0(iHemi),'-djpeg',sprintf(plotSavePath));
-%     end
+    for iHemi = 1:numel(f0)
+        plotSavePath = sprintf('%s/figures/groupCenterOfMass%s_%s_hemi%d_%s',...
+            fileBaseDir, coordsExtension, fileBaseSubjects, iHemi, fileBaseTail);
+        print(f0(iHemi),'-djpeg',sprintf(plotSavePath));
+    end
     for iHemi = 1:numel(f1)
         scatterSavePath = sprintf('%s/figures/groupCenterOfMassXZ%s_%s_hemi%d_%s',...
             fileBaseDir, coordsExtension, fileBaseSubjects, iHemi, fileBaseTail);
@@ -302,7 +307,8 @@ if saveAnalysis
         'normData','normMean','normStd','normSte',...
         'centersThresh0','XZ','centersThresh0Raw','meanCenters',...
         'centersThresh0N','centersThresh0Nmm',...
-        'mapName','prop','scanner','subjectDirs','subjects','hemis');
+        'mapName','prop','scanner','subjectDirs','subjects','hemis',...
+        'voxelSize','mmMat');
 end
 
 
