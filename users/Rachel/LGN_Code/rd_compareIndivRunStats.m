@@ -2,7 +2,7 @@
 %
 % compares run-by-run F, var exp, and behav data
 
-hemi = 2;
+hemi = 1;
 
 saveAnalysis = 1;
 saveFigs = 1;

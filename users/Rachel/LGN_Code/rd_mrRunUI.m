@@ -3,9 +3,9 @@
 %% File I/O
 hemi = 2;
 saveData = 1;
-fileBase = sprintf('ROIAnalysis/ROIX01/lgnROI%d_indivScanData', hemi);
-% fileBase = sprintf('ROIAnalysis/Runs1-5/ROIX02/lgnROI%d_indivScanData', hemi);
-roiName = sprintf('ROI%d01', hemi);
+% fileBase = sprintf('ROIAnalysis/ROIX01/lgnROI%d_indivScanData', hemi);
+fileBase = sprintf('ROIAnalysis/ROIX02/lgnROI%d_indivScanData', hemi);
+roiName = sprintf('ROI%d02', hemi);
 
 %% Start mrVista
 mrVista

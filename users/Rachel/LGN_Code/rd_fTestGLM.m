@@ -97,6 +97,7 @@ fBlockMax = max(fBlock);
 
 % print results
 for iDelay = 1:nDelays
+    hemoDelay = hemoDelays(iDelay);
     fprintf('\nhemoDelay = %d:\n', hemoDelay)
     disp([fBlockMean(iDelay); fBlockMax(iDelay)])
 end
