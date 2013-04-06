@@ -1,22 +1,37 @@
 % rd_centerOfMassGroupMPInteraction
 
 %% setup
-scanner = '7T';
+scanner = '3T';
+coordsType = 'Talairach'; %'Epi','Volume','Talairach'
+propStr = 'prop20-80'; % check that you are actually loading these props
+
+saveFigs = 1;
 
 MCol = [220 20 60]./255; % red
 PCol = [0 0 205]./255; % medium blue
 colors = {MCol, PCol};
+
+switch coordsType
+    case 'Epi'
+        coordsExtension = '';
+    case 'Volume'
+        coordsExtension = 'Vol';
+    case 'Talairach'
+        coordsExtension = 'Tal';
+    otherwise
+        error('coordsType not recognized')
+end
 
 %% load data
 % m = load('groupCenterOfMass_7T_N4_betaM_prop20_20120321');
 % p = load('groupCenterOfMass_7T_N4_betaP_prop80_20120321');
 switch scanner
     case '3T'
-        m = load('groupCenterOfMassTal_3T_N4_betaM_prop20_20130404.mat');
-        p = load('groupCenterOfMassTal_3T_N4_betaP_prop80_20130404.mat');
+        m = load(sprintf('groupCenterOfMass%s_3T_N4_betaM_prop20_20130404.mat', coordsExtension));
+        p = load(sprintf('groupCenterOfMass%s_3T_N4_betaP_prop80_20130404.mat', coordsExtension));
     case '7T'
-        m = load('groupCenterOfMassTal_7T_N7_betaM_prop20_20130404.mat');
-        p = load('groupCenterOfMassTal_7T_N7_betaP_prop80_20130404.mat');
+        m = load(sprintf('groupCenterOfMass%s_7T_N7_betaM_prop20_20130404.mat', coordsExtension));
+        p = load(sprintf('groupCenterOfMass%s_7T_N7_betaP_prop80_20130404.mat', coordsExtension));
     otherwise
         error('scanner not recognized')
 end     
@@ -24,6 +39,11 @@ end
 nSubjects = numel(m.subjects);
 varThreshs = m.groupMean.varThreshs(:,1);
 nVox = m.groupData.nSuperthreshVox;
+
+%% File I/O
+fileBaseDir = '/Volumes/Plata1/LGN/Group_Analyses';
+fileBaseSubjects = sprintf('%s_N%d', scanner, nSubjects);
+fileBaseTail = sprintf('%s_%s', propStr, datestr(now,'yyyymmdd'));
 
 %% M centers z
 m.centers1z = squeeze(m.groupData.centers1(:,3,:,:)); % [thresh x sub x hemi]
@@ -42,10 +62,11 @@ p.centersDiff = p.centers1z - p.centers2z;
 %% Plot
 %% scatter plot
 cmap = colormap(lines);
+close(gcf)
 xbound = max(abs(m.centersDiff(:)));
 ybound = max(abs(p.centersDiff(:)));
 
-f1 = figure;
+f(1) = figure;
 for hemi = 1:2
     subplot(1,2,hemi)
     hold on
@@ -60,37 +81,47 @@ for hemi = 1:2
     end
     xlabel('more M relative center (V<-->D)')
     ylabel('more P relative center (V<-->D)')
-%     title(sprintf('hemi %d, %s, prop %.01f', hemi, m.mapName, m.prop))
     title(sprintf('hemi %d', hemi))
     axis tight
     axis square
 end
-rd_supertitle(sprintf('%s N=%d, %s, prop %.01f', ...
-    m.scanner, nSubjects, m.mapName, m.prop))
-% rd_supertitle('7T N=4, betaM/betaP, prop 0.2/0.8')
+rd_supertitle(sprintf('%s N=%d, %s, prop %.01f, %s coords', ...
+    m.scanner, nSubjects, m.mapName, m.prop, coordsType))
 
 %% interaction bar plot
-f2 = figure;
-mzdiff0 = squeeze(m.centersDiff(1,:,:));
+f(2) = figure;
+mzdiff0 = squeeze(m.centersDiff(1,:,:)); % to change var thresh, just change this index
 pzdiff0 = squeeze(p.centersDiff(1,:,:));
 bar([mzdiff0(:) pzdiff0(:)])
 colormap([colors{1}; colors{2}])
 xlabel('hemisphere')
 ylabel('center of mass (V<-->D)')
-title(sprintf('%s N=%d, beta prop %.01f, all voxels', m.scanner, nSubjects, m.prop))
+title(sprintf('%s N=%d, beta prop %.01f, all voxels, %s coords', ...
+    m.scanner, nSubjects, m.prop, coordsType))
 legend('M relative center', 'P relative center','Location','Best')
 
 %% mp comparison bar plot
-f3 = figure;
+f(3) = figure;
 mzcenters1z0 = squeeze(m.centers1z(1,:,:));
 pzcenters1z0 = squeeze(p.centers1z(1,:,:));
 bar([mzcenters1z0(:) pzcenters1z0(:)])
 colormap([colors{1}; colors{2}])
 xlabel('hemisphere')
 ylabel('center of mass (V<-->D)')
-title(sprintf('%s N=%d, beta prop %.01f, all voxels', m.scanner, nSubjects, m.prop))
+title(sprintf('%s N=%d, beta prop %.01f, all voxels, %s coords', ...
+    m.scanner, nSubjects, m.prop, coordsType))
 legend('high betaM group', 'high betaP group','Location','Best')
 
+%% save figs
+figExtensions = {'Scatter_MPInteraction','Bar_MPInteraction','Bar_MPComparison'};
+if saveFigs
+    for iF = 1:numel(f)
+        plotSavePath = sprintf('%s/figures/groupCom%s%s_%s_%s',...
+            fileBaseDir, coordsExtension, figExtensions{iF}, ...
+            fileBaseSubjects, fileBaseTail);
+        print(f(iF),'-djpeg',sprintf(plotSavePath));
+    end
+end
 
 
 
