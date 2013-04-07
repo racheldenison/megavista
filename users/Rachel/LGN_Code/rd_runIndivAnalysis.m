@@ -1,16 +1,17 @@
 % rd_runIndivAnalysis.m
 
-scanner = '7T';
+scanner = '3T';
 
 [subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
 switch scanner
     case '3T'
         subjectDirs = subjectDirs3T;
+        subjects = [1 2 4 5];
     case '7T'
         subjectDirs = subjectDirs7T;
+        subjects = [1:5 7 8];
 end
 
-subjects = [1 2 3 4 5 7 8];
 % subjects = 1:size(subjectDirs,1);
 nSubjects = numel(subjects);
 
@@ -35,7 +36,7 @@ for iSubject = 1:nSubjects
 %     rd_mpBetaReliability
 
      %% F-tests on indiv scans
-%     load lgnROI1_indivScanData_multiVoxel_20130315
+%     load lgnROI2_indivScanData_multiVoxel_20130314 % this is just to get the number of runs
 %     for iScan = 1:numel(uiData)
 %         iScan
 %         rd_fTestGLM
@@ -56,18 +57,9 @@ for iSubject = 1:nSubjects
 %     rd_compareIndivRunStats
 
      %% quick plot F stats for indiv runs
-%     load lgnROI2_indivRunStats_20120425 % if it exists. otherwise:
-%     hemi = 1;
-%     fFiles = dir(sprintf('lgnROI%d_%s', hemi, 'fTests_run*'));
-%     nRuns = numel(fFiles);
-%     clear fOverallMeans
-%     for iRun = 1:nRuns
-%         load(fFiles(iRun).name)
-%         fOverallMeans(:,:,iRun) = F.overallMean;
-%     end
-%     fO = squeeze(fOverallMeans)';
-%     figure; errorbar(mean(fO),std(fO)./sqrt(size(fO,1))); title(subject)
-%     fOMeans(iSubject,:) = mean(fO);
+    hemi = 2;
+    fO = rd_plotMeanIndivRunFStats(hemi, 1, subject);
+    fOMeans32(iSubject,:) = mean(fO);
 
      %% aggregate indiv run data from all subjects
 %     % (first initialize allData to empty)
@@ -112,15 +104,15 @@ for iSubject = 1:nSubjects
 
      %% center of mass sequence
 %     % *** set var exp range in rd_centerOfMass_multiVoxData ***
-    for hemi = 1:2
-        for mapName = {'betaM-P','betaM','betaP'}
-            rd_centerOfMass_multiVoxData(hemi,mapName{1});
-            rd_mrXformCentersCoordsToVolCoords(hemi,mapName{1}); % convert to Volume coords
-            rd_mrXformCentersVolCoordsToTalCoords(hemi,mapName{1}); % convert to Volume to Talairach coords
-            rd_normalizeCenterOfMass(hemi,mapName{1},'Epi'); % choose coords option
-            rd_normalizeCenterOfMass(hemi,mapName{1},'Talairach'); % choose coords option
-        end
-    end
+%     for hemi = 1:2
+%         for mapName = {'betaM-P','betaM','betaP'}
+%             rd_centerOfMass_multiVoxData(hemi,mapName{1});
+%             rd_mrXformCentersCoordsToVolCoords(hemi,mapName{1}); % convert to Volume coords
+%             rd_mrXformCentersVolCoordsToTalCoords(hemi,mapName{1}); % convert to Volume to Talairach coords
+%             rd_normalizeCenterOfMass(hemi,mapName{1},'Epi'); % choose coords option
+%             rd_normalizeCenterOfMass(hemi,mapName{1},'Talairach'); % choose coords option
+%         end
+%     end
 %     close all
     
 %     rd_centerOfMassNormGroupAnalysis % (makes the good XZ plots)
