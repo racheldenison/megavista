@@ -20,7 +20,7 @@ nROIs = length(roiNames);
 
 %% view subjects and ROIs
 for i=1:nROIs
-    fprintf('%d %s %s\n', i, subjects{i}, roiNames{i})
+    fprintf('%d. %s %s\n', i, subjects{i}, roiNames{i})
 end
 
 %% figure 
