@@ -5,7 +5,7 @@
 saveFigs = 1;
 
 %% load and aggregate individual subject data
-files = dir('crossSessionComparison*');
+files = dir('crossSessionComparison_*');
 
 for iComp = 1:numel(files)
     data = load(files(iComp).name);
@@ -16,8 +16,16 @@ for iComp = 1:numel(files)
     corrConfs(:,iComp) = data.corrConf;
 end
 
+nROIs = length(roiNames);
+
+%% view subjects and ROIs
+for i=1:nROIs
+    fprintf('%d %s %s\n', i, subjects{i}, roiNames{i})
+end
+
 %% figure 
-plotOrder = [1 4 7 8 2 5 3 6 9 10];
+% plotOrder = [1 4 7 8 2 5 3 6 9 10];
+plotOrder = [1 4 2 5 3 6 7 9 8 10 11 12];
 
 for iComp = 1:numel(mapValCorrs)
     labels{iComp} = sprintf('%s-%s', subjects{plotOrder(iComp)}, ...
@@ -39,7 +47,7 @@ ylabel('correlation with 95% confidence interval')
 %% save fig
 if saveFigs
     print(f1,'-djpeg',...
-        sprintf('figures/groupCrossSessionComparison_betaM-P_correlation_%s',...
-        datestr(now,'yyyymmdd')));
+        sprintf('figures/groupCrossSessionComparison_NROIs%d_betaM-P_correlation_%s',...
+        nROIs, datestr(now,'yyyymmdd')));
 end
 

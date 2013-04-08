@@ -11,17 +11,17 @@
 view = 'Volume';
 dataType = 'GLMs';
 mapName = 'BetaM-P';
-classMapName = 'MPClass'; % if no class map, set to []
-subjectID = 'AV';
-roiName = 'ROI101-i3T17T';
+classMapName = []; % 'MPClass'; % if no class map, set to []
+subjectID = 'KS';
+roiName = 'ROI201ROI202-i7T37T2';
 prop = .2;
 
 % set map idxs in case there are multiple scans in this data type
 map1Idx = 1;
 map2Idx = 1; % 2 for RD 7T
 
-saveData = 0;
-saveFigures = 0;
+saveData = 1;
+saveFigures = 1;
 
 %% file i/o
 studyDir = '/Volumes/Plata1/LGN/Scans';
@@ -29,8 +29,8 @@ studyDir = '/Volumes/Plata1/LGN/Scans';
 % session1Dir = '3T/AV_20111117_session/AV_20111117_n';
 % session2Dir = '3T/AV_20111128_session/AV_20111128_n';
 
-session1Dir = '3T/AV_20111117_session/AV_20111117_n';
-session2Dir = '7T/AV_20111213_session/AV_20111213';
+% session1Dir = '3T/AV_20111117_session/AV_20111117_n';
+% session2Dir = '7T/AV_20111213_session/AV_20111213';
 
 % session1Dir = '3T/AV_20111128_session/AV_20111128_n';
 % session2Dir = '7T/AV_20111213_session/AV_20111213';
@@ -40,6 +40,9 @@ session2Dir = '7T/AV_20111213_session/AV_20111213';
 
 % session1Dir = '7T/KS_20111212_session/KS_20111212_15mm';
 % session2Dir = '7T/KS_20111214_session/KS_20111214';
+
+session1Dir = '7T/KS_20111212_session/KS_20111212_125mm';
+session2Dir = '7T/KS_20111214_session/KS_20111214';
 
 viewCoordsExtension = sprintf('%s/coords.mat', view);
 mapExtension = sprintf('%s/%s/%s.mat', view, dataType, mapName);
@@ -163,9 +166,12 @@ if ~isempty(classMapName)
     propCommonIPClass2 = nnz(classMapOverlap==-2)/nVox;
     propInOnlyOneIPMap = nnz(classMapOverlap==1 | classMapOverlap==-1)/nVox;
     propInNeitherIPMap = nnz(classMapOverlap==0 & classMapProduct==0)/nVox;
+    
+    ipClassProps = [propCommonIPClass1 propCommonIPClass2 propDifferentIPClass propInOnlyOneIPMap propInNeitherIPMap];
+else
+    classMapOverlap = zeros(size(map1ROIVals));
+    ipClassProps = zeros(5,1);
 end
-
-ipClassProps = [propCommonIPClass1 propCommonIPClass2 propDifferentIPClass propInOnlyOneIPMap propInNeitherIPMap];
 ipClassPropsHeaders = {'common1','common2','different','oneMap','neither'};
 
 %% display common class results
@@ -222,7 +228,11 @@ subplot(2,2,2)
 scatter(map1ROIVals, map2ROIVals, 20, classMapOverlap, 'filled');
 xlabel('map 1 value')
 ylabel('map 2 value')
-title('Inplane Classes')
+if ~isempty(classMapName)
+    title('Inplane Classes')
+else
+    title('Inplane Classes - No Inplane Class Map Loaded')
+end
 
 subplot(2,2,3)
 hold on

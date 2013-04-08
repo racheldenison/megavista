@@ -12,8 +12,9 @@ color = 'k'; % 'w' for intersect, 'k' for union
 saveNewROI = 1;
 
 %% file i/o
-roiName = 'ROI201';
-roiSaveName = 'ROI201-u7T17T2';
+roi1Name = 'ROI201';
+roi2Name = 'ROI202';
+roiSaveName = 'ROI201ROI202-u7T37T2';
 
 studyDir = '/Volumes/Plata1/LGN/Scans';
 
@@ -29,13 +30,16 @@ studyDir = '/Volumes/Plata1/LGN/Scans';
 % session1Dir = '3T/AV_20111128_session/AV_20111128_n';
 % session2Dir = '7T/AV_20111213_session/AV_20111213';
 
-session1Dir = '7T/KS_20111212_session/KS_20111212_15mm';
+% session1Dir = '7T/KS_20111212_session/KS_20111212_15mm';
+% session2Dir = '7T/KS_20111214_session/KS_20111214';
+
+session1Dir = '7T/KS_20111212_session/KS_20111212_125mm';
 session2Dir = '7T/KS_20111214_session/KS_20111214';
 
 roiDir = 'Volume/ROIs';
 
-roi1Path = sprintf('%s/%s/%s/%s.mat', studyDir, session1Dir, roiDir, roiName);
-roi2Path = sprintf('%s/%s/%s/%s.mat', studyDir, session2Dir, roiDir, roiName);
+roi1Path = sprintf('%s/%s/%s/%s.mat', studyDir, session1Dir, roiDir, roi1Name);
+roi2Path = sprintf('%s/%s/%s/%s.mat', studyDir, session2Dir, roiDir, roi2Name);
 
 roiSavePath = sprintf('%s/%s/%s/%s.mat', studyDir, session1Dir, roiDir, roiSaveName);
 

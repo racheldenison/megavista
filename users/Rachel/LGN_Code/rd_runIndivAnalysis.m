@@ -57,9 +57,9 @@ for iSubject = 1:nSubjects
 %     rd_compareIndivRunStats
 
      %% quick plot F stats for indiv runs
-    hemi = 2;
-    fO = rd_plotMeanIndivRunFStats(hemi, 1, subject);
-    fOMeans32(iSubject,:) = mean(fO);
+%     hemi = 2;
+%     fO = rd_plotMeanIndivRunFStats(hemi, 1, subject);
+%     fOMeans32(iSubject,:) = mean(fO);
 
      %% aggregate indiv run data from all subjects
 %     % (first initialize allData to empty)
