@@ -51,3 +51,23 @@ if saveFigs
         nROIs, datestr(now,'yyyymmdd')));
 end
 
+%% stats
+% get indices from bar graph (plot order)
+withinFieldComparisons = [1 2 7 8];
+betweenFieldComparisons = [3:6 9:12];
+comparisonsToExclude = 4:6;
+
+wfIdx = setdiff(withinFieldComparisons, comparisonsToExclude);
+bfIdx = setdiff(betweenFieldComparisons, comparisonsToExclude);
+
+vals = mapValCorrs(plotOrder);
+
+wfvals = vals(wfIdx);
+bfvals = vals(bfIdx);
+
+wfMean = mean(wfvals);
+bfMean = mean(bfvals);
+allMean = mean([wfvals bfvals]);
+
+% are within-field correlations different from between-field correlations?
+[h p ci stat] = ttest2(wfvals, bfvals);

@@ -34,6 +34,13 @@ for iSubject = 1:nSubjects
 %     rd_mrRunUI
 %
 %     rd_mpBetaReliability
+%     rd_mpBetaReliabilityGroupAnalysis
+%     rd_mpBetaReliabilityGroupStats
+
+    %% cross-session reliability
+%     rd_compareMapsOverlapSimulation
+%     rd_compareParameterMaps
+%     rd_compareParameterMapsGroupAnalysis
 
      %% F-tests on indiv scans
 %     load lgnROI2_indivScanData_multiVoxel_20130314 % this is just to get the number of runs
@@ -60,6 +67,8 @@ for iSubject = 1:nSubjects
 %     hemi = 2;
 %     fO = rd_plotMeanIndivRunFStats(hemi, 1, subject);
 %     fOMeans32(iSubject,:) = mean(fO);
+
+%     rd_fOGroupStats.m % group stats for indiv run F stats
 
      %% aggregate indiv run data from all subjects
 %     % (first initialize allData to empty)
@@ -118,6 +127,8 @@ for iSubject = 1:nSubjects
 %     rd_centerOfMassNormGroupAnalysis % (makes the good XZ plots)
 %     rd_centerOfMassGroupAnalysis % (used for center of mass interaction)
 %     rd_centerOfMassGroupMPInteraction
+
+%     rd_centerOfMassGroupStats % (uses files saved from rd_CenterOfMassGroupAnalysis)
 
 end
 
