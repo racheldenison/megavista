@@ -4,8 +4,26 @@
 scanner = '3T';
 coordsType = 'Talairach'; %'Epi','Volume','Talairach'
 propStr = 'prop20-80'; % check that you are actually loading these props
+useVarThresh = 1;
 
 saveFigs = 1;
+
+if useVarThresh
+    switch scanner
+        case '3T'
+            varThreshIdx = 5;
+            cVarThresh = 0.004;
+        case '7T'
+            varThreshIdx = 21;
+            cVarThresh = 0.02;
+        otherwise
+            error('scanner not recognized')
+    end
+else
+    varThreshIdx = 1;
+    cVarThresh = 0;
+end
+threshStr = sprintf('centersThresh%03d', round(cVarThresh*1000));
 
 MCol = [220 20 60]./255; % red
 PCol = [0 0 205]./255; % medium blue
@@ -43,7 +61,7 @@ nVox = m.groupData.nSuperthreshVox;
 %% File I/O
 fileBaseDir = '/Volumes/Plata1/LGN/Group_Analyses';
 fileBaseSubjects = sprintf('%s_N%d', scanner, nSubjects);
-fileBaseTail = sprintf('%s_%s', propStr, datestr(now,'yyyymmdd'));
+fileBaseTail = sprintf('%s_%s_%s', propStr, threshStr, datestr(now,'yyyymmdd'));
 
 %% M centers z
 m.centers1z = squeeze(m.groupData.centers1(:,3,:,:)); % [thresh x sub x hemi]
@@ -90,26 +108,26 @@ rd_supertitle(sprintf('%s N=%d, %s, prop %.01f, %s coords', ...
 
 %% interaction bar plot
 f(2) = figure;
-mzdiff0 = squeeze(m.centersDiff(1,:,:)); % to change var thresh, just change this index
-pzdiff0 = squeeze(p.centersDiff(1,:,:));
+mzdiff0 = squeeze(m.centersDiff(varThreshIdx,:,:)); % to change var thresh, just change this index
+pzdiff0 = squeeze(p.centersDiff(varThreshIdx,:,:));
 bar([mzdiff0(:) pzdiff0(:)])
 colormap([colors{1}; colors{2}])
 xlabel('hemisphere')
 ylabel('center of mass (V<-->D)')
-title(sprintf('%s N=%d, beta prop %.01f, all voxels, %s coords', ...
-    m.scanner, nSubjects, m.prop, coordsType))
+title(sprintf('%s N=%d, beta prop %.01f, %s, %s coords', ...
+    m.scanner, nSubjects, m.prop, threshStr, coordsType))
 legend('M relative center', 'P relative center','Location','Best')
 
 %% mp comparison bar plot
 f(3) = figure;
-mzcenters1z0 = squeeze(m.centers1z(1,:,:));
-pzcenters1z0 = squeeze(p.centers1z(1,:,:));
+mzcenters1z0 = squeeze(m.centers1z(varThreshIdx,:,:));
+pzcenters1z0 = squeeze(p.centers1z(varThreshIdx,:,:));
 bar([mzcenters1z0(:) pzcenters1z0(:)])
 colormap([colors{1}; colors{2}])
 xlabel('hemisphere')
 ylabel('center of mass (V<-->D)')
-title(sprintf('%s N=%d, beta prop %.01f, all voxels, %s coords', ...
-    m.scanner, nSubjects, m.prop, coordsType))
+title(sprintf('%s N=%d, beta prop %.01f, %s, %s coords', ...
+    m.scanner, nSubjects, m.prop, threshStr, coordsType))
 legend('high betaM group', 'high betaP group','Location','Best')
 
 %% save figs
