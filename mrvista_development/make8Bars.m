@@ -23,7 +23,7 @@ function params = make8Bars(params,id)
 %%%% THIS HAS BEEN EDITED BY SS FOR MOTION PRF 7T %%%%
  
 %% 2006/06 SOD: wrote it.
-masked = 1;
+masked = 0;
 
 if notDefined('params');     error('Need params'); end;
 if notDefined('id');         id = 1;                   end;
