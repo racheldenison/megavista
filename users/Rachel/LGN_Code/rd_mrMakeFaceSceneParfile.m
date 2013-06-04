@@ -22,4 +22,8 @@ for iBlock = 1:nBlocks
     blockNames{iBlock} = condNames{blockOrder(iBlock)};
 end
 
+% make blank cond number = 0
+blankCondNum = find(strcmp(condNames,'blank'));
+blockOrder(blockOrder==blankCondNum) = 0;
+
 rd_mrWriteParfile(fileName, blockTimes, blockOrder, blockNames);
