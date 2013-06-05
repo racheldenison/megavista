@@ -1,4 +1,4 @@
-function params = make8Bars(params,id)
+function params = make8Bars_SS(params,id)
 % Make moving (8) bar visual field mapping stimulus
 %
 %   params = make8Bars(stimparams,stimulus_id);
@@ -23,18 +23,16 @@ function params = make8Bars(params,id)
 %%%% THIS HAS BEEN EDITED BY SS FOR MOTION PRF 7T %%%%
  
 %% 2006/06 SOD: wrote it.
+masked = 0;
+
 if notDefined('params');     error('Need params'); end;
 if notDefined('id');         id = 1;                   end;
 
-masked = 0;
 mask_height = 23;
-n_bar_frames = 24; % TRs (24 s)
-n_blank_frames = 12; % TRs (12 s)
-
-outerRad   = params.stim(id).stimSize; % 14;%params.stim(id).stimSize;
+outerRad   = 14;%params.stim(id).stimSize;
 innerRad   = 0;
-ringWidth  = params.stim(id).stimWidth; % 4.9;%outerRad .* params.stim(id).stimWidth ./ 360;
-numImages  = params.stim(id).nFrames; % 120;%params.stim(id).nFrames ./ params.stim(id).nCycles;
+ringWidth  = 4.9;%outerRad .* params.stim(id).stimWidth ./ 360;
+numImages  = 120;%params.stim(id).nFrames ./ params.stim(id).nCycles;
 mygrid = -params.analysis.fieldSize:params.analysis.sampleRate:params.analysis.fieldSize;
 [x,y]=meshgrid(mygrid,mygrid);
 r          = sqrt (x.^2  + y.^2);
@@ -58,13 +56,13 @@ my_trial_offset = 1;
 for i = 1:length(orientations)
     if mod(i,2) ~= 0
         remake_xy(my_trial_offset) = orientations(i);
-        my_trial_offset = my_trial_offset + n_bar_frames;
+        my_trial_offset = my_trial_offset + 12;
     elseif mod(i,2) == 0
         remake_xy(my_trial_offset) = orientations(i);
         for j = 1:6
-            remake_xy(my_trial_offset+n_bar_frames + (j-1)) = -2;
+            remake_xy(my_trial_offset+12 + (j-1)) = -2;
         end
-        my_trial_offset = my_trial_offset + n_bar_frames + n_blank_frames;
+        my_trial_offset = my_trial_offset +18;
     end
 end
 %remake_xy(1:length(remake_xy)./length(orientations):length(remake_xy)) = orientations;
@@ -73,7 +71,7 @@ original_x   = x;
 original_y   = y;
 
 % step size of the bar
-step_nx      = n_bar_frames; % 12 %numImages/10;%8;
+step_nx      = 12;%numImages/10;%8;
 step_x       = (2*outerRad) ./ step_nx;
 step_startx  = (step_nx-1)./2.*-step_x - (ringWidth./2);
 
@@ -102,7 +100,7 @@ for imgNum=1:numImages
     img(window) = 1;
 %     masked = 0;
     if masked == 1
-        for i = 1:round((length(img)-length(img)*mask_height/(outerRad*2))/2)
+        for i = 1:round((length(img)-length(img)*mask_height/28)/2)
             for j = 1:length(img)
                 img(i,j) = 0;
                 img(length(img)-(i-1),j) = 0;
@@ -120,8 +118,8 @@ img_orig = img;
 if params.stim(id).nStimOnOff>0,
 %     fprintf(1,'(with Blanks)');
     nRep = params.stim(id).nStimOnOff; %4, from set parameters
-    offBlock = n_blank_frames; % 6; %round(12./params.stim(id).framePeriod);
-    onBlock  = n_bar_frames*2; %12; %params.stim(id).nFrames./nRep-offBlock;
+    offBlock = 6;%round(12./params.stim(id).framePeriod);
+    onBlock  = 24;%params.stim(id).nFrames./nRep-offBlock;
     onoffIndex = repmat(logical([zeros(onBlock,1); ones(offBlock,1)]),nRep,1);
     img(:,onoffIndex)    = 0;
 end;
