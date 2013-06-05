@@ -4,7 +4,7 @@
 [subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
             
 scanner = '3T';
-mapName = 'betaP';
+mapName = 'betaM-P';
 hemis = [1 2];
 coordsType = 'Talairach'; %'Epi','Volume','Talairach'
 coordsNorm = 'normalized'; % 'raw','normalized'

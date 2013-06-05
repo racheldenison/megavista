@@ -128,8 +128,8 @@ for iSubject = 1:nSubjects
 %     rd_centerOfMassGroupAnalysis % (used for center of mass interaction)
 %     rd_centerOfMassGroupMPInteraction
 
-%     rd_centerOfMassGroupStats % (uses files saved from rd_CenterOfMassGroupAnalysis)
-
+%     rd_centerOfMassGroupStats % (uses files saved from rd_centerOfMassGroupAnalysis, coords in real voxel units)
+%     rd_centerOfMassNormGroupStats % (uses files saved from rd_centerOfMassNormGroupAnalysis, coords as proportion of LGN extent)
 end
 
 
