@@ -2,7 +2,7 @@
 
 % Should be in '/Volumes/Plata1/LGN/Group_Analyses/'
 
-saveFigs = 1;
+saveFigs = 0;
 
 %% load and aggregate individual subject data
 files = dir('crossSessionComparison_*');
@@ -25,7 +25,7 @@ end
 
 %% figure 
 % plotOrder = [1 4 7 8 2 5 3 6 9 10];
-plotOrder = [1 4 2 5 3 6 7 9 8 10 11 12];
+plotOrder = [1 4 2 5 3 6 7 9 8 10 11 12]; % all, in correct order
 
 for iComp = 1:numel(mapValCorrs)
     labels{iComp} = sprintf('%s-%s', subjects{plotOrder(iComp)}, ...

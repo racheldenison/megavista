@@ -1,12 +1,12 @@
 % rd_centerOfMassGroupMPInteraction
 
 %% setup
-scanner = '3T';
+scanner = '7T';
 coordsType = 'Talairach'; %'Epi','Volume','Talairach'
 propStr = 'prop20-80'; % check that you are actually loading these props
-useVarThresh = 1;
+useVarThresh = 0;
 
-saveFigs = 1;
+saveFigs = 0;
 
 if useVarThresh
     switch scanner

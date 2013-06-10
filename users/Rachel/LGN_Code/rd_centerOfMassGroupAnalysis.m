@@ -4,15 +4,15 @@
 [subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
             
 scanner = '7T';
-mapName = 'betaP';
+mapName = 'betaM-P';
 hemis = [1 2];
 coordsType = 'Talairach'; %'Epi','Volume','Talairach'
 %%% note!! Volume coords are switched and flipped compared to Epi/Tal. Need
 %%% to fix if you want to plot these meaningfully.
 
 plotFigs = 1;
-saveFigs = 1;
-saveAnalysis = 1;
+saveFigs = 0;
+saveAnalysis = 0;
 
 MCol = [220 20 60]./255; % red
 PCol = [0 0 205]./255; % medium blue

@@ -7,8 +7,8 @@ analysisExtension = 'indivScanBetaReliability';
 hemis = [1 2];
 
 plotFigs = 1;
-saveFigs = 1;
-saveAnalysis = 1;
+saveFigs = 0;
+saveAnalysis = 0;
 
 [subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
 

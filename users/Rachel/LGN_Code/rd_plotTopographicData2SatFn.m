@@ -19,7 +19,8 @@ function rd_plotTopographicData2SatFn(hemi, voxelSelectionOption, ...
 
 %% Setup
 cmapOption = 'default'; % ['default','thresh']
-plotFormat = 'default'; % ['default','singleRow'] % singleRow plots slices in a row, and in reverse order. only tested for coronal slices.
+plotFormat = 'singleRow'; % ['default','singleRow'] % singleRow plots slices in a row, and in reverse order. only tested for coronal slices.
+aspectRatio = [1.575 1.75 1]; % use voxel size (for coronal, [Z X Y])
 switch name
     case 'betaM'
         colormapName = 'whitered';
@@ -299,10 +300,12 @@ for iSlice = 1:size(brainMapToPlot,dimToSlice)
     axis off
     
     if strcmp(plotFormat, 'singleRow')
-        axis equal
+%         axis equal
         axis tight
     end
     
+    % set aspect ratio
+    daspect(aspectRatio)
 end
 
 %% save map
