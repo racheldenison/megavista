@@ -4,9 +4,9 @@
 hemi = 2;
 
 nConds = 2;
-varThresh = 0.005; % eg. 0.005
+varThresh = 0; % eg. 0.004
 
-saveFigs = 1;
+saveFigs = 0;
 
 %% File I/O
 fileBase = sprintf('lgnROI%d', hemi);

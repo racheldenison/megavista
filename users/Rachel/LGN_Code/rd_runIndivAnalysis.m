@@ -27,6 +27,9 @@ for iSubject = 1:nSubjects
     % run script   
      %% plot maps
 %     rd_quickPlotBetaMapsSat
+
+     %% plot beta value and variance explained bar graphs
+%      rd_mrGLMReliability
     
      %% reliability sequence
 %     % timeCourse or multiVoxel UI

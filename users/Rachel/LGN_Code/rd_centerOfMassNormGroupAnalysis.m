@@ -3,7 +3,7 @@
 %% setup
 [subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
             
-scanner = '7T';
+scanner = '3T';
 mapName = 'betaM-P';
 hemis = [1 2];
 coordsType = 'Talairach'; %'Epi','Volume','Talairach'
@@ -73,8 +73,8 @@ cVarThresh = 0;
 analysisExtension = sprintf('centerOfMass%sNorm_%s_prop%d_*', coordsExtension, mapName, round(prop*100));
 
 % subjects = 1:size(subjectDirs,1);
-subjects = [1 2 3 4 5 7 8];
-% subjects = [1 2 4 5];
+% subjects = [1 2 3 4 5 7 8];
+subjects = [1 2 4 5];
 % subjects = 1:4;
 nSubjects = numel(subjects);
 
