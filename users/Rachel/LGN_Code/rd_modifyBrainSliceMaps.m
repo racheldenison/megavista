@@ -5,12 +5,21 @@
 %% setup
 subject = 'AV';
 hemi = 2;
-mapName = 'betaP';
+mapName = 'betaM';
 plotFormat = 'singleRow'; % 'figPerSlice','singleRow'
-aspectRatio = [1 1 1]; %[1.575 1.75 1]; % use voxel size (for coronal, [Z X Y])
 dimToSlice = 2; % 1=Sag, 2=Cor, 4=Ax
 sliceTitleOn = 0;
 saveFigs = 1;
+
+%% select aspect ratio
+switch subject
+    case 'AV'
+        aspectRatio = [1.575 1.75 1]; % use voxel size (for coronal, [Z X Y])
+    case 'RD'
+        aspectRatio = [1 1 1];
+    otherwise
+        error('subject not recognized')
+end     
 
 %% generate the original map
 switch mapName
