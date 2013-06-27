@@ -1,6 +1,6 @@
 % rd_runIndivAnalysis.m
 
-scanner = '3T';
+scanner = '7T';
 
 [subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
 switch scanner
@@ -12,6 +12,7 @@ switch scanner
         subjects = [1:5 7 8];
 end
 
+% subjects = 7:8;
 % subjects = 1:size(subjectDirs,1);
 nSubjects = numel(subjects);
 
@@ -24,7 +25,7 @@ for iSubject = 1:nSubjects
     % go to subject directory
     cd(fdir)
     
-    % run script   
+    % run script 
      %% plot maps
 %     rd_quickPlotBetaMapsSat
 
@@ -56,12 +57,26 @@ for iSubject = 1:nSubjects
     %% behavior sequence
 %     % get behavioral results
 %     rd_getMPLocalizerBehavData
-%
+
 %     % plot behavioral results
 %     cd ../../Behavior
 %     behavFile = dir('*behavData.mat');
 %     load(behavFile.name)
 %     rd_mpLocalizerBehavAcc(behavData);
+    
+%     % aggregate group behavioral data
+%     switch scanner
+%         case '3T'
+%             if ismember(subject, 2)
+%                 dots = '../../..';
+%             else
+%                 dots = '../..';
+%             end
+%         case '7T'
+%             dots = '../..';
+%     end
+%     load(sprintf('%s/Behavior/behavAcc.mat', dots))
+%     meanCondAccGroup(iSubject,:) = acc.meanCondAcc;
 
      %% run-by-run comparison (F, var exp, behav)
 %     rd_compareIndivRunStats
