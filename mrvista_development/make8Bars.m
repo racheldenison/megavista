@@ -33,7 +33,7 @@ n_blank_frames = 12; % TRs (12 s)
 
 outerRad   = params.stim(id).stimSize; % 14;%params.stim(id).stimSize;
 innerRad   = 0;
-ringWidth  = params.stim(id).stimWidth; % 4.9;%outerRad .* params.stim(id).stimWidth ./ 360;
+ringWidth  = params.stim(id).stimWidth; % Here, this refers to bar width % 4.9;%outerRad .* params.stim(id).stimWidth ./ 360;
 numImages  = params.stim(id).nFrames; % 120;%params.stim(id).nFrames ./ params.stim(id).nCycles;
 mygrid = -params.analysis.fieldSize:params.analysis.sampleRate:params.analysis.fieldSize;
 [x,y]=meshgrid(mygrid,mygrid);
