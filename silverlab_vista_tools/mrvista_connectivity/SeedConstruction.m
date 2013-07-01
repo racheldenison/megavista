@@ -1,11 +1,37 @@
-function [] = SeedConstruction(seedROI, voxelROI, dt, scans, getRawData, timePointSelector, windowParameter, overlap, freqRange)
+function [coMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRawData, ...
+    timePointSelector, windowParameter, overlap, freqRange)
 
+% [coMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRawData, ...
+%     timePointSelector, windowParameter, overlap, freqRange)
+%
 % This function pulls out the time series for all the active voxels in the
-% selected ROI and performs connectivity analysis.
+% selected ROI and performs connectivity analysis. Run this from the
+% folder containing mrSession.mat.
 % Much of this code is copied from the meanTSeries.m file with modifications
 %
-% [parameterMap] = seedConstruction(scan, seedROI, voxelROI, cueLength, ...
-%                                    taskLength, windowing, overlap, getRawData)
+% INPUTS:
+% seedROI and voxelROI: should be strings with name of ROI from mrVista
+% seedROI is the name of the ROI whose mean time series will be correlated
+% with all the voxel time series of voxelROI. 
+% If you have an Inplane ROI file 'V1.mat', seedROI (or voxelROI) would be 'V1'.
+% The calculation of the CPSD is in the order cpsd(seedROI,voxelROI).
+%
+% Optional arguments:
+% dt: dataTYPE integer. default 1 (=Original)
+% scans: vector of scans to include. if [], use all scans in the dataTYPE.
+% getRawData: true=1, false=0
+% timePointSelector: a logical vector nTRsx1. 1 to include that TR in the 
+% analysis, 0 to exclude. if [], use all TRs.
+% windowParameter: the 'window' argument in pwelch. if [], divide tseries
+% into the default number of segments given by pwelch and use Hamming
+% window.
+% overlap: the 'noverlap' argument in pwelch. []=50%, 0=0
+% freqRange: 2-element vector with [lower upper] frequency bounds
+%
+% OUTPUTS:
+% coMap and phMap are the coherence parameter map and phase delay paramter
+% map, respectively. They are the size of an epi (3D), with coherence (or delay)
+% values in all voxelROI voxels and zeros elsewhere.
 %
 % Created by Rachel Albert 1/15/13.
 %
@@ -25,33 +51,31 @@ function [] = SeedConstruction(seedROI, voxelROI, dt, scans, getRawData, timePoi
 % simplified saving at the end
 % added Phase and Search-Feature Subtraction
 %
-% edited by RD 1/28/13
-% generalizing ... [COME BACK]
+% edited by RD 6/28/13
+% generalized to work for any experiment (removed all hard-coding of
+% experiment-specific values and procedures)
+% replaced clipTSeries.m by a logical vector input argument for selecting
+% time points
+% made the data type an input argument
+% scans is now a vector of selected scans
+% saves phase maps (tested with phase calculation with simple simulation, 
+% but this could use more testing)
+% added 'co' field to threshold maps by coherence when visualizing
+% removed a bunch of directory switching (I didn't know what that was
+% doing.)
 
 
 %% Parameter Values
-% scans: search=2, feature=3
-% seedROI and voxelROI: should be strings with name of ROI from mrVista
-% windowing: rectangular=0, hamming=1, window length is always taskLen
-% overlap: []=50%, 0=0
-% getRawData: true=1, false=0
-% dt: dataTYPE, eg. 1=Original
-% scans: scans to include. if [], use all scans in the dataTYPE.
-% timePointSelector: a logical vector nTRsx1. 1 to include that TR in the 
-% analysis, 0 to exclude. if [], use all TRs.
-
 if notDefined('dt'),                 dt = 1;            end
 if notDefined('scans'),           scans = [];           end
 if notDefined('getRawData'), getRawData = 0;            end
 if notDefined('timePointSelector'), timePointSelector = []; end
 if notDefined('windowParameter'), windowParameter = []; end
 if notDefined('overlap'),       overlap = [];           end %TODO: what should this be?
-if notDefined('freqRange'),   freqRange = [0.01 0.15]; end
+if notDefined('freqRange'),   freqRange = [0.01 0.15];  end
 
 %% Initialize Session
-fprintf('Performing coherence analysis for\n%s', cd)
-% wd = cd;
-% cd(subjectFolder);
+fprintf('Performing coherence analysis for\n%s\n', cd)
 
 d = load('mrSESSION');
 
@@ -60,28 +84,13 @@ if isempty(scans)
     scans = 1:nScansInDataType;
 end
 % scanTypeIndex = [];
-co{nScansInDataType} = [];
-map{nScansInDataType} = [];
+coMap{nScansInDataType} = [];
+phMap{nScansInDataType} = [];
 
 for scan = scans
-%     cd(subjectFolder);
-%     scanName = d.dataTYPES(dt).scanParams(scan).annotation;
-%     if ~isempty(regexpi(scanName, 'localizer', 'match')) 
-%         scanTypeIndex = [scanTypeIndex; 1];
-%         continue
-%     elseif ~isempty(regexpi(scanName, 'search', 'match'))
-%         scanTypeIndex = [scanTypeIndex; 2];
-%     elseif ~isempty(regexpi(scanName, 'feature', 'match'))
-%         scanTypeIndex = [scanTypeIndex; 3];
-%     else
-%         disp(strcat('Unknown scan! Check scan ', num2str(scan), ' for ', subjectFolder))
-%         scanTypeIndex = [scanTypeIndex; 0];
-%         continue
-%     end
-    
+    tic
     % For running hidden
     vw = initHiddenInplane(dt, scan, {seedROI, voxelROI});
-%     cd(wd);
 
 %     roi = tc_roiStruct(vw, 2);
     ROIcoords = getCurROIcoords(vw); % this will be for the voxelROI
@@ -124,8 +133,8 @@ for scan = scans
             voxelTSeries = [voxelTSeries, subTSeries]; %TRs
             voxelInds = [voxelInds; [subIndices', repmat(slice, size(subIndices,2), 1)]];
         end
-
     end
+    toc
 
     % For debugging
     % To plot the time series of a random voxel
@@ -139,8 +148,7 @@ for scan = scans
     [meanSeedTSeries, tSerr] = meanTSeries(vw, scan, seedROI, getRawData);
 
     % Select time points
-    % (see also clipTSeries.m for an example of an experiment-custom
-    % function to do this)
+    % (see clipTSeries.m for an example of an experiment-custom function)
     if isempty(timePointSelector)
         timePointSelector = true(size(voxelTSeries,1),1);
     end
@@ -149,6 +157,7 @@ for scan = scans
 
     %% Perform Connectivity Analysis
     Fs = 1/d.mrSESSION.functionals(scan).framePeriod; % 1/TR
+    % [pxx,f] = pwelch(x,window,noverlap,f,fs)
     [Pxx, F] = pwelch(seedActiveTSeries, windowParameter, overlap, [], Fs);
     
     emptyMatrix = nan * ones(size(F, 1), size(voxelActiveTSeries, 2));
@@ -166,7 +175,8 @@ for scan = scans
         crossCorrYY(:, j) = Pyy;
         voxelCoherence = (abs(Pxy) .^ 2) ./ (Pxx .* Pyy);
         coherence(:, j) = voxelCoherence;
-        voxelDelay = angle(Pxy); % In Radians DOES NOT WORK
+        voxelDelayRad = angle(Pxy); % In Radians
+        voxelDelay = voxelDelayRad./(2*pi*F);
         phase(:, j) = voxelDelay;
 
         if size(coherence, 2) > 1000 && mod(size(coherence, 2), 1000) == 0
@@ -187,53 +197,46 @@ for scan = scans
     coherenceMap = zeros(functionalSize(1), functionalSize(2), nSlices);
     phaseMap     = zeros(functionalSize(1), functionalSize(2), nSlices);
 
-%     for slice = 1:nSlices
-%         coordinates = find(newCoords(:,3) == slice);
-%         if ~isempty(coordinates)
-%             for i = 1:size(coordinates,1)
-%                 coherenceMap(newCoords(coordinates(i),1), newCoords(coordinates(i),2), slice) = meanCoherence(coordinates(i));
-%                 phaseMap(newCoords(coordinates(i),1), newCoords(coordinates(i),2), slice) = meanPhase(coordinates(i));
-%             end
-% 
-% 
-%         end
-%     end
     for iVox = 1:size(newCoords,1)
         voxCoord = newCoords(iVox,:);
         coherenceMap(voxCoord(1), voxCoord(2), voxCoord(3)) = meanCoherence(iVox);
         phaseMap(voxCoord(1), voxCoord(2), voxCoord(3)) = meanPhase(iVox);
     end
+    
+    coMap{scan} = coherenceMap;
+    phMap{scan} = phaseMap;
+    
     % To plot coherence values by slice for the selected ROI
     %clims = [min(min(min(voxelMap))) max(max(max(voxelMap)))];
     %figure; imagesc(flipud(voxelMap(:,:,slice)),clims); colorbar;
     % Up = Right, Down = Left, Left = Posterior, Right = Anterior
     %waitforbuttonpress
-    
-    %TODO: create second parameter map for phase
-    map{scan} = coherenceMap;
-    %co{scan}= phaseMap;
+    toc
 end
 
-% % Create subtraction and place in Localizer Slot
-% % Always subtracts Feature from Search
-% %co{find(scanTypeIndex == 1)} = co{find(scanTypeIndex == 2)} - co{find(scanTypeIndex == 3)};
-% map{find(scanTypeIndex == 1)} = map{find(scanTypeIndex == 2)} - map{find(scanTypeIndex == 3)};
-
-% Save and Load in Inplane
-% cd(strcat(subjectFolder,'/Inplane/Averages/'));
-mapName = strcat(seedROI, '_to_', voxelROI);
+% Save maps
+% coherence map
+map = coMap;
+co = coMap; % threshold by coherence
+mapName = sprintf('%s_to_%s_coh', seedROI, voxelROI);
 mapUnits = 'coherence';
 mapPath = sprintf('Inplane/%s/%s', d.dataTYPES(dt).name, mapName);
-save(mapPath, 'map', 'mapName', 'mapUnits');
+save(mapPath, 'map', 'co', 'mapName', 'mapUnits');
 
-vw = loadParameterMap(vw, strcat(mapName, '.mat'));
-% cd(subjectFolder);
- 
-% Transform and Save in Gray
-vol = initHiddenGray(dt, scan);
-vol = ip2volParMap(vw, vol, 0, 1, 'linear');
+% phase map
+map = phMap; 
+co = coMap; % threshold by coherence
+mapName = sprintf('%s_to_%s_ph', seedROI, voxelROI);
+mapUnits = 'delay (s)';
+mapPath = sprintf('Inplane/%s/%s', d.dataTYPES(dt).name, mapName);
+save(mapPath, 'map', 'co', 'mapName', 'mapUnits');
+
+% % Transform and Save in Gray
+% % load in Inplane
+% vw = loadParameterMap(vw, strcat(mapName, '.mat')); 
+% vol = initHiddenGray(dt, scan);
+% vol = ip2volParMap(vw, vol, 0, 1, 'linear');
 
 %TODO: add parameter map settings (clip mode) here.
 %saveParameterMap(vw, strcat('Gray/Averages/', strcat(mapName, '.mat')), 1, 1);
-% cd(wd);
 end
