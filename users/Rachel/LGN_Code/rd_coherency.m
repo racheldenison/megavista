@@ -1,5 +1,6 @@
 function [meanCoherence, meanPhase] = rd_coherency(A, freqRange, window, noverlap, Fs)
 
+if notDefined('freqRange'), freqRange = []; end
 if notDefined('window'),       window = []; end
 if notDefined('noverlap'),   noverlap = []; end %TODO: what should this be?
 if notDefined('Fs'),               Fs = []; end
@@ -25,7 +26,7 @@ for i = 1:size(A, 2)
 end
 
 % Take only those frequencies in the specified range
-if notDefined('freqRange')
+if isempty('freqRange')
     freqRange = [F(1) F(end)]; 
 end
 

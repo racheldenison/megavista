@@ -8,19 +8,32 @@ rois = {'LLGN_ecc0','LLGN_ecc14','LV1_ecc0-2','LV1_ecc10-18',...
     'RLGN_ecc2','RLGN_ecc9','RV1_ecc1-3','RV1_ecc7-11'};
 
 getRawData = 1;
+filterBeforeCor = 1; % use a filtered tseries for the correlation?
+freqRange = [0.009 0.08]; % [0.009 0.08] from Fox 2005
 
-%% Open hidden Inplane
+%% Open hidden Inplane and get sampling frequency
 vw = initHiddenInplane(dt, scan, rois);
+Fs = 1/mrSESSION.functionals(scan).framePeriod; % 1/TR
 
 %% Get ROI mean tseries
 [roiTSeries, tSerr] = meanTSeries(vw, scan, rois, getRawData);
+roiTSeries = cell2mat(roiTSeries);
+
+%% Filter tseries
+if filterBeforeCor
+    corTSeries = rd_bandpass(roiTSeries, freqRange, Fs);
+else
+    corTSeries = roiTSeries;
+end
+
+%% Regress out motion, motion derivatives, wm, csf
+
 
 %% Calulcate correlation between all tseries
-roiTSeries = cell2mat(roiTSeries);
-roiCorr = corr(roiTSeries);
+roiCorr = corr(corTSeries);
 
 %% Plot
-f = figure;
+f(1) = figure;
 clim = rd_zeroCenterCLim(roiCorr);
 % imagesc(tril(roiCorr),clim);
 imagesc(roiCorr,clim);
@@ -35,14 +48,11 @@ set(gca,'YTickLabel',rois)
 
 
 %% Calculate coherency between all tseries
-freqRange = [0.01 0.15];
-Fs = 1/mrSESSION.functionals(scan).framePeriod; % 1/TR
-
 % calculates coherence and phase between all columns of roiTSeries
 [roiCoh, roiPhase] = rd_coherency(roiTSeries, freqRange, [], [], Fs);
 
 %% Plot
-f = figure;
+f(2) = figure;
 clim = rd_zeroCenterCLim(roiCoh);
 imagesc(roiCoh,clim);
 axis equal
