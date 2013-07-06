@@ -27,3 +27,5 @@ for iScan = 1:numel(scans)
     
     motionParams{scan} = pars;
 end
+
+% save motionParams.mat motionParams
