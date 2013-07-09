@@ -1,4 +1,4 @@
-function [coMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRawData, ...
+function [cohMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRawData, ...
     timePointSelector, windowParameter, overlap, freqRange)
 
 % [coMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRawData, ...
@@ -83,8 +83,9 @@ nScansInDataType = numel(d.dataTYPES(dt).scanParams);
 if isempty(scans)
     scans = 1:nScansInDataType;
 end
-% scanTypeIndex = [];
-coMap{nScansInDataType} = [];
+
+corMap{nScansInDataType} = [];
+cohMap{nScansInDataType} = [];
 phMap{nScansInDataType} = [];
 
 for scan = scans
@@ -155,7 +156,10 @@ for scan = scans
     seedActiveTSeries = meanSeedTSeries(timePointSelector);
     voxelActiveTSeries = voxelTSeries(timePointSelector,:);
 
-    %% Perform Connectivity Analysis
+    %% Perform correlation analysis
+    correlation = corr(voxelActiveTSeries, seedActiveTSeries);
+    
+    %% Perform coherency analysis
     Fs = 1/d.mrSESSION.functionals(scan).framePeriod; % 1/TR
     % [pxx,f] = pwelch(x,window,noverlap,f,fs)
     [Pxx, F] = pwelch(seedActiveTSeries, windowParameter, overlap, [], Fs);
@@ -194,16 +198,19 @@ for scan = scans
     nSlices = numel(d.mrSESSION.functionals(scan).slices);
     newCoords = [indices2Coords(voxelInds(:,1), functionalSize)', voxelInds(:,2)];
 
+    correlationMap = zeros(functionalSize(1), functionalSize(2), nSlices);
     coherenceMap = zeros(functionalSize(1), functionalSize(2), nSlices);
     phaseMap     = zeros(functionalSize(1), functionalSize(2), nSlices);
 
     for iVox = 1:size(newCoords,1)
         voxCoord = newCoords(iVox,:);
+        correlationMap(voxCoord(1), voxCoord(2), voxCoord(3)) = correlation(iVox);
         coherenceMap(voxCoord(1), voxCoord(2), voxCoord(3)) = meanCoherence(iVox);
         phaseMap(voxCoord(1), voxCoord(2), voxCoord(3)) = meanPhase(iVox);
     end
     
-    coMap{scan} = coherenceMap;
+    corMap{scan} = correlationMap;
+    cohMap{scan} = coherenceMap;
     phMap{scan} = phaseMap;
     
     % To plot coherence values by slice for the selected ROI
@@ -214,10 +221,18 @@ for scan = scans
     toc
 end
 
-% Save maps
+%% Save maps
+% correlation map
+map = corMap;
+co = corMap; % threshold by correlation
+mapName = sprintf('%s_to_%s_cor', seedROI, voxelROI);
+mapUnits = 'correlation';
+mapPath = sprintf('Inplane/%s/%s', d.dataTYPES(dt).name, mapName);
+save(mapPath, 'map', 'co', 'mapName', 'mapUnits');
+
 % coherence map
-map = coMap;
-co = coMap; % threshold by coherence
+map = cohMap;
+co = cohMap; % threshold by coherence
 mapName = sprintf('%s_to_%s_coh', seedROI, voxelROI);
 mapUnits = 'coherence';
 mapPath = sprintf('Inplane/%s/%s', d.dataTYPES(dt).name, mapName);
@@ -225,7 +240,7 @@ save(mapPath, 'map', 'co', 'mapName', 'mapUnits');
 
 % phase map
 map = phMap; 
-co = coMap; % threshold by coherence
+co = cohMap; % threshold by coherence
 mapName = sprintf('%s_to_%s_ph', seedROI, voxelROI);
 mapUnits = 'delay (s)';
 mapPath = sprintf('Inplane/%s/%s', d.dataTYPES(dt).name, mapName);
