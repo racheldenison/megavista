@@ -23,23 +23,7 @@ roiTSeries = cell2mat(roiTSeries);
 tSeriesFiltered = rd_bandpass(double(roiTSeries), freqRange, Fs);
 
 %% Regress out motion, motion derivatives, wm, csf
-mo = load('motionParams.mat');
-nu = load('nuisanceTSeries.mat');
-
-motionParams = mo.motionParams{scan};
-nuisanceTSeries = [nu.wm{scan} nu.csf{scan}];
-dc = ones(size(motionParams,1),1);
-
-motionDerivs = [diff(motionParams); zeros(1,size(motionParams,2))];
-nuisanceFiltered = rd_bandpass(double(nuisanceTSeries), freqRange, Fs);
-
-% make a matrix with all the regressors
-X = [motionParams motionDerivs nuisanceFiltered];
-% rescale columns of X
-xmin = repmat(min(X),size(X,1),1);
-xmax = repmat(max(X),size(X,1),1);
-X = (X-xmin)./(xmax-xmin);
-X = [X dc]; % add constant column
+X = rd_getNuisanceRegressors(scan, freqRange, Fs);
 
 for iROI = 1:numel(rois)
     y = roiTSeries(:,iROI);
