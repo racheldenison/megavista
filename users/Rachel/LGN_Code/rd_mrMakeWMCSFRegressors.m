@@ -3,7 +3,7 @@
 %% setup
 dt = 1;
 scans = 1:13;
-rois = {'WM','CSF'};
+rois = {'WM','CSF','wholebrain'};
 
 getRawData = 1;
 
@@ -17,6 +17,7 @@ for scan = scans
     %% Store tseries
     wm{scan} = tSeries{strcmp(rois,'WM')};
     csf{scan} = tSeries{strcmp(rois,'CSF')};
+    wholebrain{scan} = tSeries{strcmp(rois,'wholebrain')};
 end
 
-% save nuisanceTSeries.mat wm csf
+% save nuisanceTSeries.mat wm csf wholebrain
