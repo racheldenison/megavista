@@ -1,5 +1,5 @@
 function [cohMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRawData, ...
-    timePointSelector, windowParameter, overlap, freqRange)
+    filterTSeries, regressNuisance, timePointSelector, windowParameter, overlap, freqRange)
 
 % [coMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRawData, ...
 %     timePointSelector, windowParameter, overlap, freqRange)
@@ -63,16 +63,21 @@ function [cohMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRaw
 % added 'co' field to threshold maps by coherence when visualizing
 % removed a bunch of directory switching (I didn't know what that was
 % doing.)
+%
+% edited by RD 7/8/2013
+% added correlation analysis
 
 
 %% Parameter Values
-if notDefined('dt'),                 dt = 1;            end
-if notDefined('scans'),           scans = [];           end
-if notDefined('getRawData'), getRawData = 0;            end
-if notDefined('timePointSelector'), timePointSelector = []; end
-if notDefined('windowParameter'), windowParameter = []; end
-if notDefined('overlap'),       overlap = [];           end %TODO: what should this be?
-if notDefined('freqRange'),   freqRange = [0.01 0.15];  end
+if notDefined('dt'),                               dt = 1;            end
+if notDefined('scans'),                         scans = [];           end
+if notDefined('getRawData'),               getRawData = 1;            end
+if notDefined('filterTSeries'),         filterTSeries = 1;            end
+if notDefined('regressNuisance'),     regressNuisance = 1;            end
+if notDefined('timePointSelector'), timePointSelector = [];           end
+if notDefined('windowParameter'),     windowParameter = [];           end
+if notDefined('overlap'),                     overlap = [];           end 
+if notDefined('freqRange'),                 freqRange = [0.009 0.08];  end
 
 %% Initialize Session
 fprintf('Performing coherence analysis for\n%s\n', cd)
@@ -88,10 +93,12 @@ corMap{nScansInDataType} = [];
 cohMap{nScansInDataType} = [];
 phMap{nScansInDataType} = [];
 
+%% Loop through scans
 for scan = scans
-    tic
+    %% Set up scan
     % For running hidden
     vw = initHiddenInplane(dt, scan, {seedROI, voxelROI});
+    Fs = 1/mrSESSION.functionals(scan).framePeriod; % 1/TR
 
 %     roi = tc_roiStruct(vw, 2);
     ROIcoords = getCurROIcoords(vw); % this will be for the voxelROI
@@ -135,7 +142,6 @@ for scan = scans
             voxelInds = [voxelInds; [subIndices', repmat(slice, size(subIndices,2), 1)]];
         end
     end
-    toc
 
     % For debugging
     % To plot the time series of a random voxel
@@ -155,7 +161,39 @@ for scan = scans
     end
     seedActiveTSeries = meanSeedTSeries(timePointSelector);
     voxelActiveTSeries = voxelTSeries(timePointSelector,:);
-
+    
+    %% Filter time series
+    if filterTSeries
+        seedActiveTSeries = rd_bandpass(double(seedActiveTSeries), ...
+            freqRange, Fs);
+        
+        voxelActiveTSeries = rd_bandpass(double(voxelActiveTSeries), ...
+            freqRange, Fs);
+    end
+    
+    %% Regress out nuisance variables
+    if regressNuisance
+        % get nuisance design matrix
+        X = rd_getNuisanceRegressors(scan, freqRange, Fs);
+        
+        % regress seed tseries
+        [bSeed(:,1), bintSeed, residsSeed(:,1)] = ...
+            regress(seedActiveTSeries,X);
+        
+        % regress voxel tseries
+        residsVox = zeros(size(voxelActiveTSeries));
+        for iVox = 1:size(voxelActiveTSeries,2)
+            [bVox(:,iVox), bintVox, residsVox(:,iVox)] = ...
+                regress(voxelActiveTSeries(:,iVox),X);
+        end
+        
+        % use the residuals as the new tseries
+        seedActiveTSeries = residsSeed;
+        voxelActiveTSeries = residsVox;
+    else
+        X = [];
+    end
+    
     %% Perform correlation analysis
     correlation = corr(voxelActiveTSeries, seedActiveTSeries);
     
@@ -221,30 +259,53 @@ for scan = scans
     toc
 end
 
+%% Store analysis options
+mapInfo.getRawData = getRawData;
+mapInfo.filterTSeries = filterTSeries;
+mapInfo.regressNuisance = regressNuisance;
+mapInfo.timePointSelector = timePointSelector;
+mapInfo.windowParameter = windowParameter;
+mapInfo.overlap = overlap;
+mapInfo.freqRange = freqRange;
+mapInfo.Fs = Fs;
+mapInfo.X = X;
+
+% make string containing a few of the analysis choices
+analStr = '';
+if getRawData
+    analStr = [analStr 'r'];
+end
+if filterTSeries
+    analStr = [analStr 'f'];
+end
+if regressNuisance
+    analStr = [analStr 'n'];
+end
+
 %% Save maps
 % correlation map
 map = corMap;
 co = corMap; % threshold by correlation
-mapName = sprintf('%s_to_%s_cor', seedROI, voxelROI);
+mapName = sprintf('%s_to_%s_cor_%s', seedROI, voxelROI, analStr);
 mapUnits = 'correlation';
 mapPath = sprintf('Inplane/%s/%s', d.dataTYPES(dt).name, mapName);
-save(mapPath, 'map', 'co', 'mapName', 'mapUnits');
+save(mapPath, 'map', 'co', 'mapName', 'mapUnits','mapInfo');
 
 % coherence map
 map = cohMap;
 co = cohMap; % threshold by coherence
-mapName = sprintf('%s_to_%s_coh', seedROI, voxelROI);
+mapName = sprintf('%s_to_%s_coh_%s', seedROI, voxelROI, analStr);
 mapUnits = 'coherence';
 mapPath = sprintf('Inplane/%s/%s', d.dataTYPES(dt).name, mapName);
-save(mapPath, 'map', 'co', 'mapName', 'mapUnits');
+save(mapPath, 'map', 'co', 'mapName', 'mapUnits','mapInfo');
 
 % phase map
 map = phMap; 
 co = cohMap; % threshold by coherence
-mapName = sprintf('%s_to_%s_ph', seedROI, voxelROI);
+mapName = sprintf('%s_to_%s_ph_%s', seedROI, voxelROI, analStr);
 mapUnits = 'delay (s)';
 mapPath = sprintf('Inplane/%s/%s', d.dataTYPES(dt).name, mapName);
-save(mapPath, 'map', 'co', 'mapName', 'mapUnits');
+save(mapPath, 'map', 'co', 'mapName', 'mapUnits','mapInfo');
 
 % % Transform and Save in Gray
 % % load in Inplane
