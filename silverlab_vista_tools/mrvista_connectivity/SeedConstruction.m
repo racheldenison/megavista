@@ -82,7 +82,7 @@ if notDefined('scans'),                         scans = [];           end
 if notDefined('getRawData'),               getRawData = 1;            end
 if notDefined('filterTSeries'),         filterTSeries = 1;            end
 if notDefined('regressNuisance'),     regressNuisance = 1;            end
-if notDefined('regressGlobal'),         regressGlobal = 0;            end
+if notDefined('regressGlobal'),         regressGlobal = 1;            end
 if notDefined('timePointSelector'), timePointSelector = [];           end
 if notDefined('windowParameter'),     windowParameter = [];           end
 if notDefined('overlap'),                     overlap = [];           end 
@@ -107,7 +107,7 @@ for scan = scans
     %% Set up scan
     % For running hidden
     vw = initHiddenInplane(dt, scan, {seedROI, voxelROI});
-    Fs = 1/mrSESSION.functionals(scan).framePeriod; % 1/TR
+    Fs = 1/d.mrSESSION.functionals(scan).framePeriod; % 1/TR
 
 %     roi = tc_roiStruct(vw, 2);
     ROIcoords = getCurROIcoords(vw); % this will be for the voxelROI
@@ -269,7 +269,6 @@ for scan = scans
     %figure; imagesc(flipud(voxelMap(:,:,slice)),clims); colorbar;
     % Up = Right, Down = Left, Left = Posterior, Right = Anterior
     %waitforbuttonpress
-    toc
 end
 
 %% Store analysis options
@@ -303,7 +302,7 @@ end
 % correlation map
 map = corMap;
 co = corMap; % threshold by correlation
-mapName = sprintf('%s_to_%s_cor_%s', seedROI, voxelROI, analStr);
+mapName = sprintf('%s_to_%s_%s_cor', seedROI, voxelROI, analStr);
 mapUnits = 'correlation';
 mapPath = sprintf('Inplane/%s/%s', d.dataTYPES(dt).name, mapName);
 save(mapPath, 'map', 'co', 'mapName', 'mapUnits','mapInfo');
@@ -311,7 +310,7 @@ save(mapPath, 'map', 'co', 'mapName', 'mapUnits','mapInfo');
 % coherence map
 map = cohMap;
 co = cohMap; % threshold by coherence
-mapName = sprintf('%s_to_%s_coh_%s', seedROI, voxelROI, analStr);
+mapName = sprintf('%s_to_%s_%s_coh', seedROI, voxelROI, analStr);
 mapUnits = 'coherence';
 mapPath = sprintf('Inplane/%s/%s', d.dataTYPES(dt).name, mapName);
 save(mapPath, 'map', 'co', 'mapName', 'mapUnits','mapInfo');
@@ -319,7 +318,7 @@ save(mapPath, 'map', 'co', 'mapName', 'mapUnits','mapInfo');
 % phase map
 map = phMap; 
 co = cohMap; % threshold by coherence
-mapName = sprintf('%s_to_%s_ph_%s', seedROI, voxelROI, analStr);
+mapName = sprintf('%s_to_%s_%s_ph', seedROI, voxelROI, analStr);
 mapUnits = 'delay (s)';
 mapPath = sprintf('Inplane/%s/%s', d.dataTYPES(dt).name, mapName);
 save(mapPath, 'map', 'co', 'mapName', 'mapUnits','mapInfo');

@@ -3,13 +3,13 @@
 %% setup
 dt = 1;
 scan = 1;
-rois = {'ROI101','LV1','L_hMTplus','ROI201','RV1','R_hMTplus'};
-% rois = {'LLGN_ecc0','LLGN_ecc14','LV1_ecc0-2','LV1_ecc10-18',...
-%     'RLGN_ecc2','RLGN_ecc9','RV1_ecc1-3','RV1_ecc7-11'};
+% rois = {'ROI101','LV1','L_hMTplus','ROI201','RV1','R_hMTplus'};
+rois = {'LLGN_ecc0','LLGN_ecc14','LV1_ecc0-2','LV1_ecc10-18',...
+    'RLGN_ecc2','RLGN_ecc9','RV1_ecc1-3','RV1_ecc7-11'};
 
 getRawData = 1;
 filterTSeries = 0;
-regressNuisance = 0;
+regressNuisance = 1;
 regressGlobal = 0; % if regressNuisance is 0, this won't matter
 % filterBeforeCor = 0; % use a filtered tseries for the correlation?
 freqRange = [0.009 0.08]; % [0.009 0.08] from Fox 2005
