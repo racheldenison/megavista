@@ -1,7 +1,9 @@
-function [cohMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRawData, ...
-    filterTSeries, regressNuisance, timePointSelector, windowParameter, overlap, freqRange)
+function [corMap, cohMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, ...
+    getRawData, filterTSeries, regressNuisance, regressGlobal, ...
+    timePointSelector, windowParameter, overlap, freqRange)
 
-% [coMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRawData, ...
+% [corMap, cohMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, ...
+%     getRawData, filterTSeries, regressNuisance, regressGlobal, ...
 %     timePointSelector, windowParameter, overlap, freqRange)
 %
 % This function pulls out the time series for all the active voxels in the
@@ -20,6 +22,9 @@ function [cohMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRaw
 % dt: dataTYPE integer. default 1 (=Original)
 % scans: vector of scans to include. if [], use all scans in the dataTYPE.
 % getRawData: true=1, false=0
+% filterTSeries: true=1, false=0
+% regressNuisance: true=1, false=0
+% regressGlobal: true=1, false=0. if regressNuisance=0, this won't matter.
 % timePointSelector: a logical vector nTRsx1. 1 to include that TR in the 
 % analysis, 0 to exclude. if [], use all TRs.
 % windowParameter: the 'window' argument in pwelch. if [], divide tseries
@@ -66,7 +71,10 @@ function [cohMap, phMap] = SeedConstruction(seedROI, voxelROI, dt, scans, getRaw
 %
 % edited by RD 7/8/2013
 % added correlation analysis
-
+% added time series filtering
+% added option to regress out nuisance time series (wm, csf, whole brain)
+% added an 'analysis string' to map filenames to indicate what
+% preprocessing steps were performed
 
 %% Parameter Values
 if notDefined('dt'),                               dt = 1;            end
@@ -74,6 +82,7 @@ if notDefined('scans'),                         scans = [];           end
 if notDefined('getRawData'),               getRawData = 1;            end
 if notDefined('filterTSeries'),         filterTSeries = 1;            end
 if notDefined('regressNuisance'),     regressNuisance = 1;            end
+if notDefined('regressGlobal'),         regressGlobal = 0;            end
 if notDefined('timePointSelector'), timePointSelector = [];           end
 if notDefined('windowParameter'),     windowParameter = [];           end
 if notDefined('overlap'),                     overlap = [];           end 
@@ -174,7 +183,11 @@ for scan = scans
     %% Regress out nuisance variables
     if regressNuisance
         % get nuisance design matrix
-        X = rd_getNuisanceRegressors(scan, freqRange, Fs);
+        if filterTSeries
+            X = rd_getNuisanceRegressors(scan, regressGlobal, freqRange, Fs);
+        else
+            X = rd_getNuisanceRegressors(scan, regressGlobal);
+        end
         
         % regress seed tseries
         [bSeed(:,1), bintSeed, residsSeed(:,1)] = ...
@@ -263,6 +276,7 @@ end
 mapInfo.getRawData = getRawData;
 mapInfo.filterTSeries = filterTSeries;
 mapInfo.regressNuisance = regressNuisance;
+mapInfo.regressGlobal = regressGlobal;
 mapInfo.timePointSelector = timePointSelector;
 mapInfo.windowParameter = windowParameter;
 mapInfo.overlap = overlap;
@@ -280,6 +294,9 @@ if filterTSeries
 end
 if regressNuisance
     analStr = [analStr 'n'];
+    if regressGlobal
+        analStr = [analStr 'g'];
+    end
 end
 
 %% Save maps
