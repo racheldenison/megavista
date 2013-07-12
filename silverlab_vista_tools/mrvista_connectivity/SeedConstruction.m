@@ -104,6 +104,7 @@ phMap{nScansInDataType} = [];
 
 %% Loop through scans
 for scan = scans
+    fprintf('Scan %d\n', scan)
     %% Set up scan
     % For running hidden
     vw = initHiddenInplane(dt, scan, {seedROI, voxelROI});
@@ -130,6 +131,8 @@ for scan = scans
     voxelTSeries = []; % will be [TRs x voxels]
 
     % Loop through slices
+    iSlice = 0;
+    fprintf('Loading voxel time series from slices\n')
     for slice = sliceInds
         % Load tSeries & divide by mean, but don't detrend yet.
         % Otherwise, detrending the entire tSeries is much slower. DJH
@@ -150,7 +153,13 @@ for scan = scans
             voxelTSeries = [voxelTSeries, subTSeries]; %TRs
             voxelInds = [voxelInds; [subIndices', repmat(slice, size(subIndices,2), 1)]];
         end
+        
+        fprintf('.'); iSlice = iSlice + 1;
+        if mod(iSlice,10)==0
+            fprintf('%d of %d\n', iSlice, numel(sliceInds))
+        end
     end
+    fprintf('done\n')
 
     % For debugging
     % To plot the time series of a random voxel
@@ -161,6 +170,7 @@ for scan = scans
     %meanT = mean(voxeltSeries,2);
     %figure;plot(linspace(1,72,72),meanT)
 
+    fprintf('Loading seed time series\n')
     [meanSeedTSeries, tSerr] = meanTSeries(vw, scan, seedROI, getRawData);
 
     % Select time points
@@ -173,6 +183,7 @@ for scan = scans
     
     %% Filter time series
     if filterTSeries
+        fprintf('Filtering time series\n')
         seedActiveTSeries = rd_bandpass(double(seedActiveTSeries), ...
             freqRange, Fs);
         
@@ -182,6 +193,7 @@ for scan = scans
     
     %% Regress out nuisance variables
     if regressNuisance
+        fprintf('Regressing nuisance variables\n')
         % get nuisance design matrix
         if filterTSeries
             X = rd_getNuisanceRegressors(scan, regressGlobal, freqRange, Fs);
@@ -198,6 +210,12 @@ for scan = scans
         for iVox = 1:size(voxelActiveTSeries,2)
             [bVox(:,iVox), bintVox, residsVox(:,iVox)] = ...
                 regress(voxelActiveTSeries(:,iVox),X);
+            if mod(iVox,100)==0
+                fprintf('.')
+            end
+            if mod(iVox,1000)==0
+                fprintf('%d voxels\n',iVox)
+            end
         end
         
         % use the residuals as the new tseries
@@ -208,9 +226,11 @@ for scan = scans
     end
     
     %% Perform correlation analysis
+    fprintf('Correlation analysis\n')
     correlation = corr(voxelActiveTSeries, seedActiveTSeries);
     
     %% Perform coherency analysis
+    fprintf('Coherency analysis\n')
     Fs = 1/d.mrSESSION.functionals(scan).framePeriod; % 1/TR
     % [pxx,f] = pwelch(x,window,noverlap,f,fs)
     [Pxx, F] = pwelch(seedActiveTSeries, windowParameter, overlap, [], Fs);
@@ -234,8 +254,14 @@ for scan = scans
         voxelDelay = voxelDelayRad./(2*pi*F);
         phase(:, j) = voxelDelay;
 
-        if size(coherence, 2) > 1000 && mod(size(coherence, 2), 1000) == 0
-            disp(size(coherence,2))
+%         if size(coherence, 2) > 1000 && mod(size(coherence, 2), 1000) == 0
+%             disp(size(coherence,2))
+%         end
+        if mod(j,100)==0
+            fprintf('.')
+        end
+        if mod(j,1000)==0
+            fprintf('%d voxels\n',j)
         end
     end
 
@@ -244,6 +270,7 @@ for scan = scans
     meanPhase     = mean(phase(F>=freqRange(1) & F<=freqRange(2),:))';
 
     %% Save connectivity data as a Parameter Map
+    fprintf('Making parameter maps\n')
     % Revert indices to coords
     functionalSize = d.mrSESSION.functionals(scan).cropSize;
     nSlices = numel(d.mrSESSION.functionals(scan).slices);
@@ -299,6 +326,7 @@ if regressNuisance
 end
 
 %% Save maps
+fprintf('Saving parameter maps\n')
 % correlation map
 map = corMap;
 co = corMap; % threshold by correlation
