@@ -2,12 +2,18 @@
 
 %% setup
 dt = 1;
-scan = 13;
+scan = 12;
 % rois = {'ROI101','LV1','L_hMTplus','ROI201','RV1','R_hMTplus'};
 % rois = {'LLGN_ecc0','LLGN_ecc14','LV1_ecc0-2','LV1_ecc10-18',...
 %     'RLGN_ecc2','RLGN_ecc9','RV1_ecc1-3','RV1_ecc7-11'};
-rois = {'lgnROI1_M','lgnROI1_P','LV1','LV2v','LV2d','LV3v','LV3d',...
+rois = {'lgnROI1_betaM-P_prop20_varThresh040_groupM',...
+    'lgnROI1_betaM-P_prop20_varThresh040_groupP',...
+    'LV1','LV2v','LV2d','LV3v','LV3d',...
     'LV3a','L_hMTplus','LIPS0','LIPS1','LIPS2','LIPS3','LIPS4','LIPS5'};
+roiNames = rois;
+roiNames{1} = 'lgnROI1_M';
+roiNames{2} = 'lgnROI1_P';
+selectStr = rois{1}(9:end-7);
 
 getRawData = 1;
 filterTSeries = 1;
@@ -101,14 +107,14 @@ clim = rd_zeroCenterCLim(roiCorr);
 imagesc(roiCorr,clim);
 axis equal
 axis tight
-title(sprintf('Correlation %s %s', scanName, analStr),...
+title(sprintf('Correlation %s %s\n%s', scanName, analStr, selectStr),...
     'Color','k','FontSize',12,'FontWeight','demi');
 colormap(rdbumap)
 colorbar
 set(gca,'XTick',1:numel(rois))
 set(gca,'YTick',1:numel(rois))
-set(gca,'XTickLabel',rois)
-set(gca,'YTickLabel',rois)
+set(gca,'XTickLabel',roiNames)
+set(gca,'YTickLabel',roiNames)
 rotateticklabel(gca,90,'image')
 
 %% Plot coherence
@@ -117,14 +123,14 @@ clim = rd_zeroCenterCLim(roiCoh);
 imagesc(roiCoh,clim);
 axis equal
 axis tight
-title(sprintf('Coherence %s %s', scanName, analStr),...
+title(sprintf('Coherence %s %s\n%s', scanName, analStr, selectStr),...
     'Color','k','FontSize',12,'FontWeight','demi');
 colormap(rdbumap)
 colorbar
 set(gca,'XTick',1:numel(rois))
 set(gca,'YTick',1:numel(rois))
-set(gca,'XTickLabel',rois)
-set(gca,'YTickLabel',rois)
+set(gca,'XTickLabel',roiNames)
+set(gca,'YTickLabel',roiNames)
 rotateticklabel(gca,90,'image')
 
 f(3) = figure;
@@ -132,14 +138,14 @@ clim = rd_zeroCenterCLim(roiPhase);
 imagesc(roiPhase,clim);
 axis equal
 axis tight
-title(sprintf('Phase %s %s', scanName, analStr),...
+title(sprintf('Phase %s %s\n%s', scanName, analStr, selectStr),...
     'Color','k','FontSize',12,'FontWeight','demi');
 colormap(rdbumap)
 colorbar
 set(gca,'XTick',1:numel(rois))
 set(gca,'YTick',1:numel(rois))
-set(gca,'XTickLabel',rois)
-set(gca,'YTickLabel',rois)
+set(gca,'XTickLabel',roiNames)
+set(gca,'YTickLabel',roiNames)
 rotateticklabel(gca,90,'image')
 
 %% Save analysis
