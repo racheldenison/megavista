@@ -1,29 +1,47 @@
 % rd_connectivityMatDiff.m
 
-voxelSelection = 'all';
+hemi = 2;
+voxelSelection = 'varexp';
 
+lgnROI = sprintf('lgnROI%d', hemi);
+switch hemi
+    case 1
+        varthresh = '040';
+    case 2
+        varthresh = '050';
+end
 switch voxelSelection
     case 'all'
-        analysisExt = 'lgnROI1_M_etal_rfng_20130711';
+        switch hemi
+            case 1
+                analysisExt = 'M_etal_rfng_20130711';
+            case 2
+                analysisExt = 'betaM-P_prop20_varThresh000_groupM_etal_rfng_20130712';
+        end
     case 'extreme'
-        analysisExt = 'lgnROI1_betaM-P_prop10_varThresh000_groupM_etal_rfng_20130712';
+        analysisExt = 'betaM-P_prop10_varThresh000_groupM_etal_rfng_20130712';
     case 'varexp'
-        analysisExt = 'lgnROI1_betaM-P_prop10_varThresh000_groupM_etal_rfng_20130712';
+        analysisExt = sprintf('betaM-P_prop20_varThresh%s_groupM_etal_rfng_20130712', varthresh);
     otherwise
         error('voxelSelection not recognized')
 end
 
-F = load(sprintf('ConnectivityAnalysis/steady1_%s.mat', analysisExt));
-M = load(sprintf('ConnectivityAnalysis/steady2_%s.mat', analysisExt));
-P = load(sprintf('ConnectivityAnalysis/steady3_%s.mat', analysisExt));
+F = load(sprintf('ConnectivityAnalysis/steady1_%s_%s.mat', lgnROI, analysisExt));
+M = load(sprintf('ConnectivityAnalysis/steady2_%s_%s.mat', lgnROI, analysisExt));
+P = load(sprintf('ConnectivityAnalysis/steady3_%s_%s.mat', lgnROI, analysisExt));
 
 analStr = F.preproc.analStr;
 rois = F.rois;
-measures = {'roiCorr','roiCoh'}; %{'roiCorr','roiCoh'};
+measures = {'roiCorr'}; %{'roiCorr','roiCoh'};
 scanTypes = {'f','m','p'};
 comps = {'mf','pf','mp'};
 w = [1 -1]';
 
+roiNames = rois;
+roiNames{1} = sprintf('%s_M', lgnROI);
+roiNames{2} = sprintf('%s_P', lgnROI);
+
+fixCol = [.3 .3 .3]; % gray
 MCol = [220 20 60]./255; % red
 PCol = [0 0 205]./255; % medium blue
 colors = {MCol, PCol};
@@ -47,7 +65,7 @@ for measure = measures
     d.pf.(m) = P.results.(m) - F.results.(m);
 end
 
-%% Plot correlation
+%% Plot difference maps
 iF = 1;
 for comp = {'mp','mf','pf'}
     for measure = measures
@@ -62,10 +80,10 @@ for comp = {'mp','mf','pf'}
             'Color','k','FontSize',12,'FontWeight','demi');
         colormap(rdbumap)
         colorbar
-        set(gca,'XTick',1:numel(rois))
-        set(gca,'YTick',1:numel(rois))
-        set(gca,'XTickLabel',rois)
-        set(gca,'YTickLabel',rois)
+        set(gca,'XTick',1:numel(roiNames))
+        set(gca,'YTick',1:numel(roiNames))
+        set(gca,'XTickLabel',roiNames)
+        set(gca,'YTickLabel',roiNames)
         rotateticklabel(gca,90,'image');
     end
 end
@@ -86,7 +104,7 @@ for measure = measures
             legend('M ROI','P ROI')
         end
     end
-    set(gca,'XTickLabel',rois(3:end))
+    set(gca,'XTickLabel',roiNames(3:end))
     rotateticklabel(gca);
     rd_supertitle(sprintf('%s %s', analStr, voxelSelection));
     rd_raiseAxis(gca);
@@ -97,14 +115,15 @@ iF = 1;
 for measure = measures
     f3(iF) = figure; iF = iF + 1;
     m = measure{1};
-    bar(mpD.(m))
+    vals = mpD.(m)(3:end,:);
+    bar(vals)
+    colormap([fixCol; colors{1}; colors{2}])
     ylabel('connectivity difference (M ROI - P ROI)')
-    legend({'fix scan','m scan','p scan'})
-    legend({'fix scan','M scan','P scan'})
-    set(gca,'XTickLabel',rois)
-    set(gca,'XTickLabel',rois)
+    legend({'fix scan','M scan','P scan'},'Location','best')
+    set(gca,'XTickLabel',roiNames(3:end))
+    set(gca,'XTickLabel',roiNames(3:end))
     rotateticklabel(gca);
-    title(sprintf('%s %s %s', m(4:end), analStr, voxelSelection));
+    title(sprintf('%s %s %s %s', lgnROI, m(4:end), analStr, voxelSelection));
 end
 
 %% Plot M and P difference map values
@@ -125,7 +144,7 @@ for measure = measures
             legend('M ROI','P ROI')
         end
     end
-    set(gca,'XTickLabel',rois(3:end))
+    set(gca,'XTickLabel',roiNames(3:end))
     rotateticklabel(gca);
     rd_supertitle(sprintf('%s %s', analStr, voxelSelection));
     rd_raiseAxis(gca);
