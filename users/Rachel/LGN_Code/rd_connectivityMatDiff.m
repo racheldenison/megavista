@@ -1,7 +1,7 @@
 % rd_connectivityMatDiff.m
 
-hemi = 2;
-voxelSelection = 'varexp';
+hemi = 1;
+voxelSelection = 'extreme';
 
 lgnROI = sprintf('lgnROI%d', hemi);
 switch hemi
