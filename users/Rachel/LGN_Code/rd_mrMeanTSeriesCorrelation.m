@@ -10,14 +10,16 @@ scan = 13;
 %     'lgnROI1_betaM-P_prop20_varThresh040_groupP',...
 %     'LV1','LV2v','LV2d','LV3v','LV3d',...
 %     'LV3a','L_hMTplus','LIPS0','LIPS1','LIPS2','LIPS3','LIPS4','LIPS5'};
-rois = {'lgnROI2_betaM-P_prop20_varThresh050_groupM',...
-    'lgnROI2_betaM-P_prop20_varThresh050_groupP',...
-    'RV1','RV2v','RV2d','RV3v','RV3d',...
-    'RV3AB_rd','R_hMTplus','RIPS0','RIPS1_rd','RIPS2_rd','RIPS3_rd','RIPS4_rd'};
+% rois = {'lgnROI2_betaM-P_prop20_varThresh050_groupM',...
+%     'lgnROI2_betaM-P_prop20_varThresh050_groupP',...
+%     'RV1','RV2v','RV2d','RV3v','RV3d',...
+%     'RV3AB_rd','R_hMTplus','RIPS0','RIPS1_rd','RIPS2_rd','RIPS3_rd','RIPS4_rd'};
+rois = {'lgnROI1_M','lgnROI1_P','LV1','lgnROI2_M','lgnROI2_P','RV1'};
 roiNames = rois;
-roiNames{1} = 'lgnROI2_M';
-roiNames{2} = 'lgnROI2_P';
-selectStr = rois{1}(9:end-7);
+% roiNames{1} = 'lgnROI2_M';
+% roiNames{2} = 'lgnROI2_P';
+% selectStr = rois{1}(9:end-7);
+selectStr = '';
 
 getRawData = 1;
 filterTSeries = 1;
@@ -26,8 +28,8 @@ regressGlobal = 1; % if regressNuisance is 0, this won't matter
 % filterBeforeCor = 0; % use a filtered tseries for the correlation?
 freqRange = [0.009 0.08]; % [0.009 0.08] from Fox 2005
 
-saveFigs = 1;
-saveAnalysis = 1;
+saveFigs = 0;
+saveAnalysis = 0;
 
 %% Generate analysis string
 analStr = '';
