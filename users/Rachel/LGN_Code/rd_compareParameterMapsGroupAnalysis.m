@@ -53,8 +53,8 @@ end
 
 %% stats
 % get indices from bar graph (plot order)
-withinFieldComparisons = [1 2 7 8];
-betweenFieldComparisons = [3:6 9:12];
+withinFieldComparisons = [1:2 7:10];
+betweenFieldComparisons = [3:6 11:12];
 comparisonsToExclude = 4:6;
 
 wfIdx = setdiff(withinFieldComparisons, comparisonsToExclude);
