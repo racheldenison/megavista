@@ -104,7 +104,7 @@ phMap{nScansInDataType} = [];
 
 %% Loop through scans
 for scan = scans
-    fprintf('Scan %d\n', scan)
+    fprintf('Scan %d [%s]\n', scan, datestr(now))
     %% Set up scan
     % For running hidden
     vw = initHiddenInplane(dt, scan, {seedROI, voxelROI});
@@ -254,9 +254,6 @@ for scan = scans
         voxelDelay = voxelDelayRad./(2*pi*F);
         phase(:, j) = voxelDelay;
 
-%         if size(coherence, 2) > 1000 && mod(size(coherence, 2), 1000) == 0
-%             disp(size(coherence,2))
-%         end
         if mod(j,100)==0
             fprintf('.')
         end

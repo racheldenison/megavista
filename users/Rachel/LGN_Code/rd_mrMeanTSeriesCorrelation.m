@@ -25,7 +25,6 @@ getRawData = 1;
 filterTSeries = 1;
 regressNuisance = 1;
 regressGlobal = 1; % if regressNuisance is 0, this won't matter
-% filterBeforeCor = 0; % use a filtered tseries for the correlation?
 freqRange = [0.009 0.08]; % [0.009 0.08] from Fox 2005
 
 saveFigs = 0;
@@ -89,13 +88,6 @@ if regressNuisance
     % use the residuals for the connectivity analysis
     tSeries = resids;
 end
-
-%% Filter tseries
-% if filterBeforeCor
-%     corTSeries = rd_bandpass(double(tSeries), freqRange, Fs);
-% else
-%     corTSeries = tSeries;
-% end
 
 %% Calulcate correlation between all tseries
 fprintf('Calculating correlation\n')
