@@ -45,6 +45,7 @@ for iSubject = 1:nSubjects
 %     rd_compareMapsOverlapSimulation
 %     rd_compareParameterMaps
 %     rd_compareParameterMapsGroupAnalysis
+%     rd_correlationRandomizationTest
 
      %% F-tests on indiv scans
 %     load lgnROI2_indivScanData_multiVoxel_20130314 % this is just to get the number of runs
