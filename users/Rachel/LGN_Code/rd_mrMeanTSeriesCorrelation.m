@@ -17,22 +17,24 @@ scan = 8;
 % rois = {'lgnROI1_M','lgnROI1_P','LV1','lgnROI2_M','lgnROI2_P','RV1'};
 
 % SB
-% rois = {'lgnROI1_M','lgnROI1_P',...
+% rois = {'lgnROI1_betaM-P_prop10_varThresh000_groupM',...
+%     'lgnROI1_betaM-P_prop60_varThresh000_groupP',...
 %     'LV1','LV2v','LV2d','LV3v','LV3d','LV4_cons','LV4_lib','LV3A','LV3B',...
 %     'LhMTplus','LhMTplus_vol','LLO1','LLO2',...
 %     'LIPS0','LIPS1','LIPS2','LIPS3','LIPS4','LIPS5',...
 %     'LOFA','LFFA','LpScene','LaScene'};
-rois = {'lgnROI2_M','lgnROI2_P',...
+rois = {'lgnROI2_betaM-P_prop10_varThresh000_groupM',...
+    'lgnROI2_betaM-P_prop60_varThresh000_groupP',...
     'RV1','RV2v','RV2d','RV3v','RV3d','RV4_cons','RV4_lib','RV3A','RV3B',...
     'RhMTplus','RhMTplus_vol','RLO1','RLO2','RTO1','RTO2',...
     'RIPS0','RIPS1','RIPS2',...
     'ROFA','RFFA','RpScene','RaScene'};
 
 roiNames = rois;
-% roiNames{1} = 'lgnROI2_M';
-% roiNames{2} = 'lgnROI2_P';
-% selectStr = rois{1}(9:end-7);
-selectStr = '';
+roiNames{1} = 'lgnROI2_M';
+roiNames{2} = 'lgnROI2_P';
+selectStr = rois{1}(9:end-7);
+% selectStr = '';
 
 getRawData = 1;
 filterTSeries = 1;
@@ -126,7 +128,7 @@ set(gca,'XTick',1:numel(rois))
 set(gca,'YTick',1:numel(rois))
 set(gca,'XTickLabel',roiNames)
 set(gca,'YTickLabel',roiNames)
-rotateticklabel(gca,90,'image')
+rotateticklabel(gca,90,'image');
 
 %% Plot coherence
 f(2) = figure;
@@ -142,7 +144,7 @@ set(gca,'XTick',1:numel(rois))
 set(gca,'YTick',1:numel(rois))
 set(gca,'XTickLabel',roiNames)
 set(gca,'YTickLabel',roiNames)
-rotateticklabel(gca,90,'image')
+rotateticklabel(gca,90,'image');
 
 f(3) = figure;
 clim = rd_zeroCenterCLim(roiPhase);
@@ -157,7 +159,7 @@ set(gca,'XTick',1:numel(rois))
 set(gca,'YTick',1:numel(rois))
 set(gca,'XTickLabel',roiNames)
 set(gca,'YTickLabel',roiNames)
-rotateticklabel(gca,90,'image')
+rotateticklabel(gca,90,'image');
 
 %% Save analysis
 if saveAnalysis
