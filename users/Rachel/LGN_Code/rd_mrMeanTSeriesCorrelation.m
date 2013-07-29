@@ -2,7 +2,7 @@
 
 %% setup
 dt = 1;
-scan = 13;
+scan = 8;
 % rois = {'ROI101','LV1','L_hMTplus','ROI201','RV1','R_hMTplus'};
 % rois = {'LLGN_ecc0','LLGN_ecc14','LV1_ecc0-2','LV1_ecc10-18',...
 %     'RLGN_ecc2','RLGN_ecc9','RV1_ecc1-3','RV1_ecc7-11'};
@@ -14,7 +14,20 @@ scan = 13;
 %     'lgnROI2_betaM-P_prop20_varThresh050_groupP',...
 %     'RV1','RV2v','RV2d','RV3v','RV3d',...
 %     'RV3AB_rd','R_hMTplus','RIPS0','RIPS1_rd','RIPS2_rd','RIPS3_rd','RIPS4_rd'};
-rois = {'lgnROI1_M','lgnROI1_P','LV1','lgnROI2_M','lgnROI2_P','RV1'};
+% rois = {'lgnROI1_M','lgnROI1_P','LV1','lgnROI2_M','lgnROI2_P','RV1'};
+
+% SB
+% rois = {'lgnROI1_M','lgnROI1_P',...
+%     'LV1','LV2v','LV2d','LV3v','LV3d','LV4_cons','LV4_lib','LV3A','LV3B',...
+%     'LhMTplus','LhMTplus_vol','LLO1','LLO2',...
+%     'LIPS0','LIPS1','LIPS2','LIPS3','LIPS4','LIPS5',...
+%     'LOFA','LFFA','LpScene','LaScene'};
+rois = {'lgnROI2_M','lgnROI2_P',...
+    'RV1','RV2v','RV2d','RV3v','RV3d','RV4_cons','RV4_lib','RV3A','RV3B',...
+    'RhMTplus','RhMTplus_vol','RLO1','RLO2','RTO1','RTO2',...
+    'RIPS0','RIPS1','RIPS2',...
+    'ROFA','RFFA','RpScene','RaScene'};
+
 roiNames = rois;
 % roiNames{1} = 'lgnROI2_M';
 % roiNames{2} = 'lgnROI2_P';
@@ -27,8 +40,8 @@ regressNuisance = 1;
 regressGlobal = 1; % if regressNuisance is 0, this won't matter
 freqRange = [0.009 0.08]; % [0.009 0.08] from Fox 2005
 
-saveFigs = 0;
-saveAnalysis = 0;
+saveFigs = 1;
+saveAnalysis = 1;
 
 %% Generate analysis string
 analStr = '';
