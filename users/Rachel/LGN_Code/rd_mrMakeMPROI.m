@@ -7,7 +7,7 @@
 hemi = 2;
 mapName = 'betaM-P';
 prop = .2;
-varThresh = 0.05;
+varThresh = 0.035; 
 
 groupNames = {'M','P'};
 
@@ -35,7 +35,7 @@ fileBase = sprintf('lgnROI%d', hemi);
 analysisExtension = '_multiVoxFigData';
 loadPath = sprintf('%s%s.mat', fileBase, analysisExtension);
 roiDirectory = '../../Inplane/ROIs';
-roiFileBase = sprintf('%s_centerOfMass_%s_prop%d_%s', ...
+roiFileBase = sprintf('%s_%s_prop%d_%s', ...
     fileBase, mapName, round(prop*100), voxDescrip);
 
 %% Load data
