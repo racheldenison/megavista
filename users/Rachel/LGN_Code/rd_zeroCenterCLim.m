@@ -1,4 +1,6 @@
 function clim = rd_zeroCenterCLim(x)
+%
+% clim = rd_zeroCenterCLim(x)
 
 M=abs(max(x(:)));
 m=abs(min(x(:)));

@@ -149,6 +149,14 @@ for iSubject = 1:nSubjects
 
 %     rd_centerOfMassGroupStats % (uses files saved from rd_centerOfMassGroupAnalysis, coords in real voxel units)
 %     rd_centerOfMassNormGroupStats % (uses files saved from rd_centerOfMassNormGroupAnalysis, coords as proportion of LGN extent)
+
+    %% connectivity sequence
+    rd_fslCreateMotionRegressors % make motion params regressors
+    rd_mrMakeWMCSFRegressors % make wm, csf, global regressors
+    rd_mrMakeMPROI % make M and P ROIs
+    rd_mrMeanTSeriesCorrelation % ROI-to-ROI connectivity
+    rd_connectivityMatDiff % make M/P bar plots, compare fix, M, and P scans
+    SeedConstruction % ROI-to-voxel connectivity
 end
 
 
