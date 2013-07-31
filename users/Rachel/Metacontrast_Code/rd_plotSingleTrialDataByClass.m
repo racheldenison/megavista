@@ -1,8 +1,8 @@
 % rd_plotSingleTrialDataByClass.m
 
 %% load data
-data = load('data_SOACode5.dat');
-class = load('dataClass_SOACode5.dat');
+data = load('data_SOACode6.dat');
+class = load('dataClass_SOACode6.dat');
 
 classes = unique(class);
 nClasses = numel(classes);
