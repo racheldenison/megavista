@@ -41,5 +41,13 @@ for iCond = 1:numel(c)
     fid = fopen(classFile,'wt');
     fprintf(fid, '%d\n', class);
     fclose(fid);
+    
+    % make empty folder to contain analysis
+    soaDir = sprintf('SOACode%d', cond);
+    if ~exist(soaDir, 'dir')
+        mkdir(soaDir)
+    else
+        fprintf('\n%s directory already exists! Not overwriting.\n\n', soaDir)
+    end
 end
 
