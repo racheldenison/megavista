@@ -1,4 +1,6 @@
 """
+run_svm.py
+
 =========================================
 SVM: Maximum margin separating hyperplane
 =========================================
@@ -11,11 +13,13 @@ Initial source:
 http://scikit-learn.org/dev/auto_examples/svm/plot_separating_hyperplane.html
 """
 
-print __doc__
+#print __doc__
 
 import numpy as np
 import random
 import pylab as pl
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 from sklearn import svm
 from sklearn import preprocessing
 import math
@@ -40,11 +44,10 @@ def merge_chunks(c):
         return np.vstack(c)
     return c
 
-classifierAcc = np.zeros((1,1))
-# def main():
-for itn in range(1):
+def main(condNum):
+    print 'Running SVM'
     # generate random data or use existing data?
-    generateData = True
+    generateData = False
     # run test and train routine?
     testAndTrain = True
     # number of points in clouds 0 and 1 (only works if generateData)
@@ -55,12 +58,16 @@ for itn in range(1):
     # number of training and test partitions
     numsets = 10
     # FileNames (for !generateData)
-    datafolder = 'Targ_Only/'
+    condName = 'SOACode{}'.format(condNum)
+    jackknifeType = 'LeaveOneRunOut'
     if generateData:
-        datafolder = 'Sim_'+datafolder
-    fileData = datafolder + 'data_SOACode6.dat'
-    fileDataClass = datafolder + 'dataClass_SOACode6.dat'
+        datafolder = jackknifeType + '/Sim_'+ condName + '/'
+    else:
+        datafolder = jackknifeType + '/' + condName + '/'
+    fileData = 'data_' + condName + '.dat'
+    fileDataClass = 'dataClass_' + condName + '.dat'
     # specify plots
+    plotClassifierAcc = True
     plotFig1 = True 
     plotByClassifier = True # plots so that classifier plane is ortho to window
     plotByAverage = True # plots so that average plane is ortho to window
@@ -72,7 +79,7 @@ for itn in range(1):
     plotSupportPlanes = True
 
     # we create n0+n1 separable points in d dimensions and write to files
-    if (generateData):
+    if generateData:
         print "Generating Data\n"
         # np.random.seed(1)
         data = np.r_[np.random.randn(n0, d) - [1]*d, np.random.randn(n1, d) + [1]*d]
@@ -147,22 +154,23 @@ for itn in range(1):
 
     classifier_accuracies = []
     # make use of test and train files
-    if (testAndTrain):
+    if testAndTrain:
         for testSetNumber in range(numsets):
             data = utils.readData(datafolder+'train_'+str(testSetNumber)+'.dat') # sets "data" to a training set
             dataClass = utils.readDataClass(datafolder+'train_'+str(testSetNumber)+'_class.dat') # gets class info for that set
 
             ave0 = utils.arrayMean(utils.cloud(data, dataClass, 0))
             ave1 = utils.arrayMean(utils.cloud(data, dataClass, 1))
-            print "ave0", ave0, "\nave1", ave1
+            # print "ave0", ave0, "\nave1", ave1
 
-            scaler = preprocessing.Scaler().fit(data)
+            scaler = preprocessing.StandardScaler().fit(data) # in older versions of sklearn, just 'Scaler'
             scaledData = scaler.transform(data) 
             dataMean = np.mean(data,axis=0)
             dataSTD = np.std(data,axis=0)
-            print "Mean of Training Data:" + str(dataMean)
-            print "STD of Training Data:" + str(dataSTD)
-            print "Mean of Scaled Training Data:" + str(np.mean(scaledData,axis=0))
+            # print "Mean of Training Data:" + str(dataMean)
+            # print "STD of Training Data:" + str(dataSTD)
+            # print "Mean of Scaled Training Data:" + str(np.mean(scaledData,axis=0))
+        
             # fit the model
             clf = svm.SVC(kernel='linear')
             clf.fit(scaledData, dataClass)
@@ -174,136 +182,153 @@ for itn in range(1):
             scaledTestData = scaler.transform(testData)
             # manualScaledTestData = (testData-np.tile(dataMean,(8,1)))/np.tile(dataSTD,(8,1))
 
-            print "Mean of Testing Data:" + str(np.mean(testData,axis=0))
-            print "Mean of Scaled Testing Data:" + str(np.mean(scaledTestData,axis=0))
+            # print "Mean of Testing Data:" + str(np.mean(testData,axis=0))
+            # print "Mean of Scaled Testing Data:" + str(np.mean(scaledTestData,axis=0))
 
             classifier_accuracies.append(utils.classifierAccuracy(scaledTestData, testDataClass, clf, ave0, ave1))
 
             overall_acc = sum(classifier_accuracies)/len(classifier_accuracies)
         print "OVERALL SVM ACCURACY: " + str(overall_acc) + "\n"
-        # return overall_acc
-        classifierAcc[itn] = overall_acc
+
+    if plotClassifierAcc:
+        gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1]) 
+        ax1 = plt.subplot(gs[0])
+        ax2 = plt.subplot(gs[1])
+        # f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+        ax1.bar(np.arange(numsets)+1, classifier_accuracies, align='center', alpha=0.4)
+        ax1.set_xlim(0, numsets+1)
+        ax1.set_ylim(0, 90)
+        ax1.set_xlabel('train/test set')
+        ax1.set_ylabel('classifier accuracy')
+        ax2.bar(0, overall_acc, align='center', alpha=0.4)
+        ax2.errorbar(0, overall_acc, yerr=np.std(classifier_accuracies)/np.sqrt(numsets), ecolor='k')
+        ax2.axhline(y=50, xmin=-1, xmax=1, color='k', linestyle='--')
+        ax2.set_xlim(-0.8, 0.8)
+        ax2.set_ylim(0, 90)
+        ax2.set_xticks([])
+        ax2.set_xlabel('overall')
+        plt.suptitle('Classifier accuracy, {}'.format(condName))
+        plt.savefig(datafolder + 'classifier_acc.png')
+
+
+        # vector from center of 0s to center of 1s
+        deltavector = ave1 - ave0
+        center = (ave0 + ave1)/2
+        # print "deltavector", deltavector
+        # print "center", center
 
 
 
-    # vector from center of 0s to center of 1s
-    deltavector = ave1 - ave0
-    center = (ave0 + ave1)/2
-    print "deltavector", deltavector
-    print "center", center
+        # get the separating hyperplane
+        w = clf.coef_[0]
+        a = -w[xdim] / w[ydim] # finds slope
+        xx = np.linspace(-5, 5, 3) # creates equidistant x values
+        yy = a * xx - (clf.intercept_[0]) / w[ydim] # finds y at those values
+
+        # separating hyperplane for average method
+        mAvePlane = -deltavector[xdim]/deltavector[ydim]
+        yyAve = mAvePlane * xx + (center[ydim] - mAvePlane*center[xdim])
+
+        # print "\nclf.coef_", clf.coef_
+        # print "w", w
+        # print "a", a
+        # print "xx", xx
+        # print "clf.intercept_", (clf.intercept_[0]) / w[ydim]
+        # print "yy", yy
+
+        if plotFig1:
+            # plot the parallels to the separating hyperplane that pass through the
+            # support vectors
+            b = clf.support_vectors_[0]
+            yy_down = a * xx + (b[ydim] - a * b[xdim])
+            b = clf.support_vectors_[-1]
+            yy_up = a * xx + (b[ydim] - a * b[xdim])
+
+            ### plot the line, the points, and the nearest vectors to the plane
+            pl.figure(2)
+            pl.plot(xx, yy)
+            pl.plot(xx, yyAve)
+            if plotSupportPlanes:
+                pl.plot(xx, yy_down, 'k--')
+                pl.plot(xx, yy_up, 'k--')
+            pl.plot(center[xdim], center[ydim],'g.',markersize=8.0, color='green') # plots average of clouds
+
+            pl.scatter(clf.support_vectors_[:, xdim], clf.support_vectors_[:, ydim],
+                       s=80, facecolors='none')
+            pl.scatter(scaledData[:, xdim], scaledData[:, ydim], c=dataClass, cmap=pl.cm.Paired)
+
+            pl.axis('tight')
+            pl.plot([ave0[xdim], ave1[xdim]], [ave0[ydim], ave1[ydim]])
+            svmNoAve = ave1[ydim] - ((ave1[xdim]-ave0[xdim])*-1/a + ave0[ydim])
+            pl.plot([ave0[xdim], ave1[xdim]], [ave0[ydim]+svmNoAve/2, ave1[ydim]-svmNoAve/2])
+        ### ^ old plot ^
+        ### v new plots v
+
+        yyy = np.linspace(-2, 2, 3)
+        xxxave = [utils.projVector(center, deltavector)]*3
+
+        # Finds the location of the vertical classifier line
+        clfarray=[]
+        wnorm=utils.norm(w)
+        points=np.linspace(-1, 1, 10000) # creates many points from -1 to 1
+        for i in points:
+            clfarray.append(wnorm*i) # creates an array of vectors parallel to wnorm
+        clfarray = np.asarray(clfarray)
+        check1 = clf.predict(clfarray[0])
+        check2 = clf.predict(clfarray[0])
+        for i in range(0, clfarray.shape[0]): # works down the array and finds first 
+            check1 = clf.predict(clfarray[i]) # vector which flips predicted class
+            if check1 != check2:
+                svmInflection = utils.arrayMean(np.asarray([clfarray[i], clfarray[i-1]])) # approximates inflection point
+            check2 = check1
+        xxxsvm = [utils.projVector(svmInflection, w)]*3
 
 
 
-    # get the separating hyperplane
-    w = clf.coef_[0]
-    a = -w[xdim] / w[ydim] # finds slope
-    xx = np.linspace(-5, 5, 3) # creates equidistant x values
-    yy = a * xx - (clf.intercept_[0]) / w[ydim] # finds y at those values
+        # Plot figs
+        if plotByAverage:
+            pl.figure(3)
+            pl.title("Plot by Averages")
+            pl.plot(xxxave, yyy)
+            projData = utils.projectArray(scaledData, deltavector)
+            projSupVecs = utils.projectArray(clf.support_vectors_, deltavector)
+            projTestData = utils.projectArray(scaledTestData, deltavector)
+            pl.scatter(projSupVecs[:, 0], projSupVecs[:, 1], s=80, facecolors='none')
+            pl.scatter(projData[:, 0], projData[:, 1], c=dataClass, cmap=pl.cm.Paired)
+            pl.scatter(projTestData[:, 0], projTestData[:, 1],
+                       s=80, facecolors='yellow')
+            pl.scatter(projTestData[:, 0], projTestData[:, 1],
+                       c=testDataClass, cmap=pl.cm.Paired)
+            pl.savefig(datafolder+'byaverage.png')
 
-    # separating hyperplane for average method
-    mAvePlane = -deltavector[xdim]/deltavector[ydim]
-    yyAve = mAvePlane * xx + (center[ydim] - mAvePlane*center[xdim])
+        if plotByClassifier:
+            pl.figure(4)
+            pl.title("Plot by Classifier")
+            pl.plot(xxxsvm, yyy)
+            projData2 = utils.projectArray(scaledData, w)
+            projSupVecs2 = utils.projectArray(clf.support_vectors_, w)
+            projTestData2 = utils.projectArray(scaledTestData, w)
+            pl.scatter(projSupVecs2[:, 0], projSupVecs2[:, 1], s=80, facecolors='none')
+            pl.scatter(projData2[:, 0], projData2[:, 1], c=dataClass, cmap=pl.cm.Paired)
+            pl.scatter(projTestData2[:, 0], projTestData2[:, 1],
+                       s=80, facecolors='yellow')
+            pl.scatter(projTestData2[:, 0], projTestData2[:, 1],
+                       c=testDataClass, cmap=pl.cm.Paired)
+            pl.savefig(datafolder+'byclassifier.png')
 
-    print "\nclf.coef_", clf.coef_
-    print "w", w
-    print "a", a
-    print "xx", xx
-    print "clf.intercept_", (clf.intercept_[0]) / w[ydim]
-    print "yy", yy
+        if plotXversusY:
+            pl.figure(5)
+            pl.title("Plot dimension X versus dimension Y")
+            pl.scatter(clf.support_vectors_[:, xdim], clf.support_vectors_[:, ydim], s=80, facecolors='none')
+            pl.scatter(scaledData[:, xdim], scaledData[:, ydim], c=dataClass, cmap=pl.cm.Paired)
+            pl.scatter(scaledTestData[:, xdim], scaledTestData[:, ydim],
+                       s=80, facecolors='yellow')
+            pl.scatter(scaledTestData[:, xdim], scaledTestData[:, ydim],
+                       c=testDataClass, cmap=pl.cm.Paired)
+            pl.savefig(datafolder+'xversusy.png')
 
-    if plotFig1:
-        # plot the parallels to the separating hyperplane that pass through the
-        # support vectors
-        b = clf.support_vectors_[0]
-        yy_down = a * xx + (b[ydim] - a * b[xdim])
-        b = clf.support_vectors_[-1]
-        yy_up = a * xx + (b[ydim] - a * b[xdim])
+        pl.show()
+        plt.close('all')
 
-        ### plot the line, the points, and the nearest vectors to the plane
-        pl.figure(1)
-        pl.plot(xx, yy)
-        pl.plot(xx, yyAve)
-        if plotSupportPlanes:
-            pl.plot(xx, yy_down, 'k--')
-            pl.plot(xx, yy_up, 'k--')
-        pl.plot(center[xdim], center[ydim],'g.',markersize=8.0, color='green') # plots average of clouds
-
-        pl.scatter(clf.support_vectors_[:, xdim], clf.support_vectors_[:, ydim],
-                   s=80, facecolors='none')
-        pl.scatter(scaledData[:, xdim], scaledData[:, ydim], c=dataClass, cmap=pl.cm.Paired)
-
-        pl.axis('tight')
-        pl.plot([ave0[xdim], ave1[xdim]], [ave0[ydim], ave1[ydim]])
-        svmNoAve = ave1[ydim] - ((ave1[xdim]-ave0[xdim])*-1/a + ave0[ydim])
-        pl.plot([ave0[xdim], ave1[xdim]], [ave0[ydim]+svmNoAve/2, ave1[ydim]-svmNoAve/2])
-    ### ^ old plot ^
-    ### v new plots v
-
-    yyy = np.linspace(-2, 2, 3)
-    xxxave = [utils.projVector(center, deltavector)]*3
-
-    # Finds the location of the vertical classifier line
-    clfarray=[]
-    wnorm=utils.norm(w)
-    points=np.linspace(-1, 1, 10000) # creates many points from -1 to 1
-    for i in points:
-        clfarray.append(wnorm*i) # creates an array of vectors parallel to wnorm
-    clfarray = np.asarray(clfarray)
-    check1 = clf.predict(clfarray[0])
-    check2 = clf.predict(clfarray[0])
-    for i in range(0, clfarray.shape[0]): # works down the array and finds first 
-        check1 = clf.predict(clfarray[i]) # vector which flips predicted class
-        if check1 != check2:
-            svmInflection = utils.arrayMean(np.asarray([clfarray[i], clfarray[i-1]])) # approximates inflection point
-        check2 = check1
-    xxxsvm = [utils.projVector(svmInflection, w)]*3
-
-
-
-    # Plot figs
-    if plotByAverage:
-        pl.figure(2)
-        pl.title("Plot by Averages")
-        pl.plot(xxxave, yyy)
-        projData = utils.projectArray(scaledData, deltavector)
-        projSupVecs = utils.projectArray(clf.support_vectors_, deltavector)
-        projTestData = utils.projectArray(scaledTestData, deltavector)
-        pl.scatter(projSupVecs[:, 0], projSupVecs[:, 1], s=80, facecolors='none')
-        pl.scatter(projData[:, 0], projData[:, 1], c=dataClass, cmap=pl.cm.Paired)
-        pl.scatter(projTestData[:, 0], projTestData[:, 1],
-                   s=80, facecolors='yellow')
-        pl.scatter(projTestData[:, 0], projTestData[:, 1],
-                   c=testDataClass, cmap=pl.cm.Paired)
-    pl.savefig(datafolder+'byaverage.png')
-
-    if plotByClassifier:
-        pl.figure(3)
-        pl.title("Plot by Classifier")
-        pl.plot(xxxsvm, yyy)
-        projData2 = utils.projectArray(scaledData, w)
-        projSupVecs2 = utils.projectArray(clf.support_vectors_, w)
-        projTestData2 = utils.projectArray(scaledTestData, w)
-        pl.scatter(projSupVecs2[:, 0], projSupVecs2[:, 1], s=80, facecolors='none')
-        pl.scatter(projData2[:, 0], projData2[:, 1], c=dataClass, cmap=pl.cm.Paired)
-        pl.scatter(projTestData2[:, 0], projTestData2[:, 1],
-                   s=80, facecolors='yellow')
-        pl.scatter(projTestData2[:, 0], projTestData2[:, 1],
-                   c=testDataClass, cmap=pl.cm.Paired)
-    pl.savefig(datafolder+'byclassifier.png')
-
-    if plotXversusY:
-        pl.figure(4)
-        pl.title("Plot dimension X versus dimension Y")
-        pl.scatter(clf.support_vectors_[:, xdim], clf.support_vectors_[:, ydim], s=80, facecolors='none')
-        pl.scatter(scaledData[:, xdim], scaledData[:, ydim], c=dataClass, cmap=pl.cm.Paired)
-        pl.scatter(scaledTestData[:, xdim], scaledTestData[:, ydim],
-                   s=80, facecolors='yellow')
-        pl.scatter(scaledTestData[:, xdim], scaledTestData[:, ydim],
-                   c=testDataClass, cmap=pl.cm.Paired)
-    pl.savefig(datafolder+'xversusy.png')
-
-    pl.show()
-
-# if __name__ == '__main__':
-#     main()
-#     pl.show()
+if __name__ == '__main__':
+    main(condNum)
