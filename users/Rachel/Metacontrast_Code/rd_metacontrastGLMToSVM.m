@@ -13,6 +13,7 @@
 %MAKE SURE THESE PARAMETERS ARE CORRECT!!
 %% setup
 nTrials = 560;
+% nTrials = 280;
 
 %% load data
 load('meta_multiVoxFigData.mat')
