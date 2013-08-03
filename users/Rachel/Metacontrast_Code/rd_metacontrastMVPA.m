@@ -60,9 +60,13 @@ subj = create_xvalid_indices(subj,'runs');
 
 %% CLASSIFICATION - n-minus-one cross-validation
 % set some basic arguments for a backprop classifier
-class_args.train_funct_name = 'train_bp_netlab';
-class_args.test_funct_name = 'test_bp_netlab';
-class_args.nHidden = 10;
+% class_args.train_funct_name = 'train_bp_netlab';
+% class_args.test_funct_name = 'test_bp_netlab';
+% class_args.nHidden = 10;
+
+class_args.train_funct_name = 'train_logreg';
+class_args.test_funct_name = 'test_logreg';
+class_args.penalty = 10;
 
 % now, run the classification multiple times, training and testing
 % on different subsets of the data on each iteration
