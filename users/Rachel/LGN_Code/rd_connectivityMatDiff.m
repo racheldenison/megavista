@@ -1,7 +1,7 @@
 % rd_connectivityMatDiff.m
 
 hemi = 1;
-voxelSelection = 'extreme';
+voxelSelection = 'extreme'; % 'all','varexp','extreme'
 
 lgnROI = sprintf('lgnROI%d', hemi);
 switch hemi
@@ -26,9 +26,9 @@ switch voxelSelection
         error('voxelSelection not recognized')
 end
 
-F = load(sprintf('ConnectivityAnalysis/steady1_%s_%s.mat', lgnROI, analysisExt));
-M = load(sprintf('ConnectivityAnalysis/steady2_%s_%s.mat', lgnROI, analysisExt));
-P = load(sprintf('ConnectivityAnalysis/steady3_%s_%s.mat', lgnROI, analysisExt));
+F = load(sprintf('ConnectivityAnalysis/old_rois/steady1_%s_%s.mat', lgnROI, analysisExt));
+M = load(sprintf('ConnectivityAnalysis/old_rois/steady2_%s_%s.mat', lgnROI, analysisExt));
+P = load(sprintf('ConnectivityAnalysis/old_rois/steady3_%s_%s.mat', lgnROI, analysisExt));
 
 analStr = F.preproc.analStr;
 rois = F.rois;
@@ -120,7 +120,6 @@ for measure = measures
     colormap([fixCol; colors{1}; colors{2}])
     ylabel('connectivity difference (M ROI - P ROI)')
     legend({'fix scan','M scan','P scan'},'Location','best')
-    set(gca,'XTickLabel',roiNames(3:end))
     set(gca,'XTickLabel',roiNames(3:end))
     rotateticklabel(gca);
     title(sprintf('%s %s %s %s', lgnROI, m(4:end), analStr, voxelSelection));
