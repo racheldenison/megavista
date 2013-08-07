@@ -1,17 +1,36 @@
-function rd_plotMPROIConnectivity(roi1Name, analStr, scanName, voxelSelection)
+function rd_plotMPROIConnectivity(roi1Name, analStr, scanName, voxelSelection, seedHemi, measures)
 
 %% example inputs
 % roi1Name = 'lgnROI1_M';
 % analStr = 'rfng';
 % scanName = 'fix 1';
 % voxelSelection = 'all';
+% seedHemi = 1; % will plot connectivity between M and P ROIs in this
+% hemisphere and all other ROIs
+% measures = {'roiCorr','roiCoh'};
 
-%% setup
-if nargin==3
-    voxelSelection = 'all';
+%% deal with inputs
+if nargin<4 || isempty(voxelSelection)
+    voxelSelection = '';
+    fprintf('\nNo voxelSelection string given -- will not appear in plot\n\n')
+end
+if nargin<5 || isempty(seedHemi)
+    seedHemi = 1;
+    fprintf('\nSetting seedHemi to 1 by default\n\n')
+end
+if nargin<6 || isempty(measures)
+    measures = {'roiCorr'};
 end
 
-% determine scan type
+if seedHemi==1
+    seedHemiStr = 'L';
+elseif seedHemi==2
+    seedHemiStr = 'R';
+else
+    error('seedHemi not recognized')
+end
+
+%% determine scan type
 if strfind(scanName,'fix')
     scanType = 'f';
 elseif strfind(scanName,'M')
@@ -23,7 +42,7 @@ else
 end
 scanName(strfind(scanName,' ')) = '';
 
-% find data file (results of mrMeanCorrelation analysis
+%% find and load data (results of mrMeanCorrelation analysis)
 dataDir = sprintf('ConnectivityAnalysis/left-right');
 dataFileTemplate = sprintf('%s_%s_etal_%s_*', scanName, roi1Name, analStr);
 dataFile = dir(sprintf('%s/%s', dataDir, dataFileTemplate));
@@ -34,16 +53,21 @@ else
     error('Too many or too few data files.')
 end
 
+%% ROIs
 roiNames = C.rois;
-measures = {'roiCorr','roiCoh'};
 
-mpIdx(1) = find(strcmp(roiNames,'lgnROI2_M'));
-mpIdx(2) = find(strcmp(roiNames,'lgnROI2_P'));
+mROIPatt = sprintf('lgnROI%d\\S*M$', seedHemi); % regexp: any non-whitespace character (\S) (\\ because appears in sprintf statement) any number of times (*) with M at the end (M$)
+pROIPatt = sprintf('lgnROI%d\\S*P$', seedHemi);
+
+mpIdx(1) = find(~cellfun('isempty', regexp(roiNames, mROIPatt))); 
+mpIdx(2) = find(~cellfun('isempty', regexp(roiNames, pROIPatt)));
+% mpIdx(1) = find(strcmp(roiNames,'lgnROI2_M'));
+% mpIdx(2) = find(strcmp(roiNames,'lgnROI2_P'));
 
 nonMPIdx = 1:numel(roiNames);
 nonMPIdx = setdiff(nonMPIdx, mpIdx);
 
-% colors
+%% colors
 fixCol = [.3 .3 .3]; % gray
 MCol = [220 20 60]./255; % red
 PCol = [0 0 205]./255; % medium blue
@@ -83,7 +107,7 @@ for iM = 1:numel(measures)
     set(gca,'XTick',1:numel(roiNames)-2)
     set(gca,'XTickLabel',roiNames(nonMPIdx))
     rotateticklabel(gca);
-    rd_supertitle(sprintf('%s %s', analStr, voxelSelection));
+    rd_supertitle(sprintf('%s %s %s', analStr, voxelSelection, seedHemiStr));
     rd_raiseAxis(gca);
 end
 
@@ -100,5 +124,5 @@ for iM = 1:numel(measures)
     set(gca,'XTick',1:numel(roiNames)-2)
     set(gca,'XTickLabel',roiNames(nonMPIdx))
     rotateticklabel(gca);
-    title(sprintf('%s %s %s %s', roi1Name, m(4:end), analStr, voxelSelection));
+    title(sprintf('%s %s %s %s %s', roi1Name, m(4:end), analStr, voxelSelection, seedHemiStr));
 end
