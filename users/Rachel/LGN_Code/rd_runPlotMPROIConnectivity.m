@@ -25,7 +25,7 @@ subject = sessDir(1:2);
 
 fileBase = sprintf('lgnROI%d', hemi);
 
-saveFigs = 1;
+saveFigs = 0;
 
 %% Loop through scans and voxel selection options
 for iSN = 1:numel(scanNames)

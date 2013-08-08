@@ -9,6 +9,7 @@ function rd_plotMPROIConnectivity(roi1Name, analStr, scanName, voxelSelection, s
 % voxelSelection = 'all';
 % seedHemi = 1; % will plot connectivity between M and P ROIs in this hemisphere and all other ROIs
 % measures = {'roiCorr','roiCoh'};
+% saveFigs = 0;
 
 %% deal with inputs
 if nargin<4 || isempty(voxelSelection)
@@ -33,6 +34,12 @@ elseif seedHemi==2
 else
     error('seedHemi not recognized')
 end
+
+%% select specific ROIs whose M/P connectivity we will plot
+% selectedROIs = []; use all ROIs
+selectedROIs = 'MP'; % special option, find the lgnROI rois
+% selectedROIs = {'LV4_cons','LV4_lib','LhMTplus',...
+%     'RV4_cons','RV4_lib','RhMTplus'}; 
 
 %% determine scan type
 if strfind(scanName,'fix')
@@ -68,7 +75,16 @@ mpIdx(2) = find(~cellfun('isempty', regexp(roiNames, pROIPatt)));
 % mpIdx(1) = find(strcmp(roiNames,'lgnROI2_M'));
 % mpIdx(2) = find(strcmp(roiNames,'lgnROI2_P'));
 
-nonMPIdx = 1:numel(roiNames);
+if isempty(selectedROIs)
+    nonMPIdx = 1:numel(roiNames);
+elseif strcmp(selectedROIs,'MP')
+    nonMPIdx = find(~cellfun('isempty',strfind(roiNames, 'lgnROI')));
+else
+    nonMPIdx = zeros(1,numel(selectedROIs));
+    for iROI = 1:numel(selectedROIs)
+        nonMPIdx(iROI) = find(strcmp(roiNames,selectedROIs{iROI}));
+    end
+end
 nonMPIdx = setdiff(nonMPIdx, mpIdx);
 
 %% Fig file I/O
@@ -113,7 +129,7 @@ for iM = 1:numel(measures)
     title(sprintf('%s scan', scanName))
     legend('M ROI','P ROI')
 
-    set(gca,'XTick',1:numel(roiNames)-2)
+    set(gca,'XTick',1:numel(roiNames(nonMPIdx)))
     set(gca,'XTickLabel',roiNames(nonMPIdx))
     rotateticklabel(gca);
     rd_supertitle(sprintf('%s %s %s', analStr, voxelSelection, seedHemiStr));
@@ -130,7 +146,7 @@ for iM = 1:numel(measures)
     ylabel('connectivity difference (M ROI - P ROI)')
     legend(sprintf('%s scan', scanName),'Location','best')
 
-    set(gca,'XTick',1:numel(roiNames)-2)
+    set(gca,'XTick',1:numel(roiNames(nonMPIdx)))
     set(gca,'XTickLabel',roiNames(nonMPIdx))
     rotateticklabel(gca);
     title(sprintf('%s %s %s %s %s', roi1Name, m(4:end), analStr, voxelSelection, seedHemiStr));
