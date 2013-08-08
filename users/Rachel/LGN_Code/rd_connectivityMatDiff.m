@@ -1,7 +1,7 @@
 % rd_connectivityMatDiff.m
 
 hemi = 1;
-voxelSelection = 'extreme'; % 'all','varexp','extreme'
+voxelSelection = 'all'; % 'all','varexp','extreme'
 
 lgnROI = sprintf('lgnROI%d', hemi);
 switch hemi
@@ -12,23 +12,18 @@ switch hemi
 end
 switch voxelSelection
     case 'all'
-        switch hemi
-            case 1
-                analysisExt = 'M_etal_rfng_20130711';
-            case 2
-                analysisExt = 'betaM-P_prop20_varThresh000_groupM_etal_rfng_20130712';
-        end
+        analysisExt = 'M_etal_rfng_20130806';
     case 'extreme'
-        analysisExt = 'betaM-P_prop10_varThresh000_groupM_etal_rfng_20130712';
+        analysisExt = 'betaM-P_prop10_varThresh000_groupM_etal_rfng_201300806';
     case 'varexp'
-        analysisExt = sprintf('betaM-P_prop20_varThresh%s_groupM_etal_rfng_20130712', varthresh);
+        analysisExt = sprintf('betaM-P_prop20_varThresh%s_groupM_etal_rfng_20130807', varthresh);
     otherwise
         error('voxelSelection not recognized')
 end
 
-F = load(sprintf('ConnectivityAnalysis/old_rois/steady1_%s_%s.mat', lgnROI, analysisExt));
-M = load(sprintf('ConnectivityAnalysis/old_rois/steady2_%s_%s.mat', lgnROI, analysisExt));
-P = load(sprintf('ConnectivityAnalysis/old_rois/steady3_%s_%s.mat', lgnROI, analysisExt));
+F = load(sprintf('ConnectivityAnalysis/left-right/fix1_%s_%s.mat', lgnROI, analysisExt));
+M = load(sprintf('ConnectivityAnalysis/left-right/M1_%s_%s.mat', lgnROI, analysisExt));
+P = load(sprintf('ConnectivityAnalysis/left-right/P1_%s_%s.mat', lgnROI, analysisExt));
 
 analStr = F.preproc.analStr;
 rois = F.rois;
@@ -104,6 +99,7 @@ for measure = measures
             legend('M ROI','P ROI')
         end
     end
+    set(gca,'XTick',1:numel(roiNames)-2)
     set(gca,'XTickLabel',roiNames(3:end))
     rotateticklabel(gca);
     rd_supertitle(sprintf('%s %s', analStr, voxelSelection));
@@ -120,6 +116,7 @@ for measure = measures
     colormap([fixCol; colors{1}; colors{2}])
     ylabel('connectivity difference (M ROI - P ROI)')
     legend({'fix scan','M scan','P scan'},'Location','best')
+    set(gca,'XTick',1:numel(roiNames)-2)
     set(gca,'XTickLabel',roiNames(3:end))
     rotateticklabel(gca);
     title(sprintf('%s %s %s %s', lgnROI, m(4:end), analStr, voxelSelection));
@@ -143,6 +140,7 @@ for measure = measures
             legend('M ROI','P ROI')
         end
     end
+    set(gca,'XTick',1:numel(roiNames)-2)
     set(gca,'XTickLabel',roiNames(3:end))
     rotateticklabel(gca);
     rd_supertitle(sprintf('%s %s', analStr, voxelSelection));
