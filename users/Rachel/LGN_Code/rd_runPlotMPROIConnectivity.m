@@ -1,6 +1,11 @@
 % rd_runPlotMPROIConnectivity.m
+%
+% Calls rd_plotMPROIConnectivity, with subject-specific info
+% Loops through scans, voxel selection methods, and seed hemispheres
+% Run from session directory
 
 %% Setup
+% these three determine roi1Name
 % same for everyone if we're using left-right analysis
 hemi = 1;
 mapName = 'betaM-P';
@@ -19,6 +24,8 @@ seedHemis = [1 2]; % plot connectivity between M and P ROIs in this hemisphere a
 subject = sessDir(1:2);
 
 fileBase = sprintf('lgnROI%d', hemi);
+
+saveFigs = 1;
 
 %% Loop through scans and voxel selection options
 for iSN = 1:numel(scanNames)
@@ -45,7 +52,7 @@ for iSN = 1:numel(scanNames)
                     roi1Name = [];
                     switch subject
                         case 'JN'
-                            varThresh = 0.050;
+                            varThresh = 0.040;
                         case 'SB'
                             varThresh = 0.038;
                         otherwise
@@ -64,7 +71,7 @@ for iSN = 1:numel(scanNames)
             end
             
             %% Plot connectivity
-            rd_plotMPROIConnectivity(roi1Name, analStr, scanName, voxelSelection, seedHemi)
+            rd_plotMPROIConnectivity(roi1Name, analStr, scanName, voxelSelection, seedHemi, measures, saveFigs)
             
         end
     end

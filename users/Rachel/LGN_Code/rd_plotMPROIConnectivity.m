@@ -1,12 +1,13 @@
-function rd_plotMPROIConnectivity(roi1Name, analStr, scanName, voxelSelection, seedHemi, measures)
-
-%% example inputs
+function rd_plotMPROIConnectivity(roi1Name, analStr, scanName, voxelSelection, seedHemi, measures, saveFigs)
+%
+% rd_plotMPROIConnectivity(roi1Name, analStr, scanName, voxelSelection, seedHemi, measures, saveFigs)
+%
+% Example inputs:
 % roi1Name = 'lgnROI1_M';
 % analStr = 'rfng';
 % scanName = 'fix 1';
 % voxelSelection = 'all';
-% seedHemi = 1; % will plot connectivity between M and P ROIs in this
-% hemisphere and all other ROIs
+% seedHemi = 1; % will plot connectivity between M and P ROIs in this hemisphere and all other ROIs
 % measures = {'roiCorr','roiCoh'};
 
 %% deal with inputs
@@ -20,6 +21,9 @@ if nargin<5 || isempty(seedHemi)
 end
 if nargin<6 || isempty(measures)
     measures = {'roiCorr'};
+end
+if nargin<7 || isempty(saveFigs)
+    saveFigs = 0;
 end
 
 if seedHemi==1
@@ -67,6 +71,11 @@ mpIdx(2) = find(~cellfun('isempty', regexp(roiNames, pROIPatt)));
 nonMPIdx = 1:numel(roiNames);
 nonMPIdx = setdiff(nonMPIdx, mpIdx);
 
+%% Fig file I/O
+figDir = sprintf('ConnectivityAnalysis/figures/%s/left-right', scanName);
+roiSetName = sprintf('%s_etal',roi1Name);
+figFileBase = sprintf('mpROIBars_%s_%s_%s_%s', roiSetName, analStr, voxelSelection, seedHemiStr);
+
 %% colors
 fixCol = [.3 .3 .3]; % gray
 MCol = [220 20 60]./255; % red
@@ -101,7 +110,7 @@ for iM = 1:numel(measures)
     bar(mpC.(m)(nonMPIdx,:))
     colormap([colors{1}; colors{2}])
     ylabel(m)
-    title(sprintf('%s scan', scanType))
+    title(sprintf('%s scan', scanName))
     legend('M ROI','P ROI')
 
     set(gca,'XTick',1:numel(roiNames)-2)
@@ -119,10 +128,24 @@ for iM = 1:numel(measures)
     bar(vals)
     colormap(scanColor)
     ylabel('connectivity difference (M ROI - P ROI)')
-    legend(sprintf('%s scan', scanType),'Location','best')
+    legend(sprintf('%s scan', scanName),'Location','best')
 
     set(gca,'XTick',1:numel(roiNames)-2)
     set(gca,'XTickLabel',roiNames(nonMPIdx))
     rotateticklabel(gca);
     title(sprintf('%s %s %s %s %s', roi1Name, m(4:end), analStr, voxelSelection, seedHemiStr));
+end
+
+%% save figures
+if saveFigs
+    for iF = 1:numel(f1)
+        figFilePath = sprintf('%s/%s_%s_mpc', ...
+            figDir, figFileBase, measures{iF});
+        print(f1(iF), '-djpeg', figFilePath)
+    end
+    for iF = 1:numel(f2)
+        figFilePath = sprintf('%s/%s_%s_mpd', ...
+            figDir, figFileBase, measures{iF});
+        print(f2(iF), '-djpeg', figFilePath)
+    end
 end
