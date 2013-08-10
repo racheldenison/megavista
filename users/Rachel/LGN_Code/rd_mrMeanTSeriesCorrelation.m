@@ -198,6 +198,7 @@ if saveAnalysis
     preproc.freqRange = freqRange;
     preproc.analStr = analStr;
     
+    resuts.tSeries = tSeries;
     results.roiCorr = roiCorr;
     results.roiCoh = roiCoh;
     results.roiPhase = roiPhase;
