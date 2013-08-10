@@ -1,6 +1,6 @@
-function X = rd_getNuisanceRegressors(scan, useGlobal, freqRange, Fs)
+function X = rd_getNuisanceRegressors(scan, useGlobal, freqRange, Fs, filtN)
 
-% X = rd_getNuisanceRegressors(scan, [useGlobal], [freqRange], [Fs])
+% X = rd_getNuisanceRegressors(scan, [useGlobal], [freqRange], [Fs], [filtN])
 %
 % Make a design matrix X containing motion, wm, csf, whole brain
 % regressors and their derivatives (first-order differences)
@@ -14,6 +14,8 @@ function X = rd_getNuisanceRegressors(scan, useGlobal, freqRange, Fs)
 % Fs: sampling frequency of the nuisance time series
 % freqRange and Fs are optional, but if you include one, you must supply
 % both. If you include neither, the time series will not be filtered.
+% filtN: the filter order (n) supplied to filtfilt. data must be 3x as
+% long as this. optional or empty to use default.
 %
 % OUTPUTS
 % X: design matrix of nuisance regressors, [motion moDerivs nuisance
@@ -27,8 +29,11 @@ if nargin<3
     filterTSeries = 0;
 elseif nargin==3
     error('If you want to filter, you must supply both freqRange and Fs')
-elseif nargin==4
+elseif nargin>3
     filterTSeries = 1;
+end
+if nargin<5
+    filtN = [];
 end
 
 %% load nuisance data
@@ -44,7 +49,7 @@ end
 dc = ones(size(motionParams,1),1);
 
 if filterTSeries
-    nuisanceTSeries = rd_bandpass(double(nuisanceTSeries), freqRange, Fs);
+    nuisanceTSeries = rd_bandpass(double(nuisanceTSeries), freqRange, Fs, filtN);
 end
 
 motionDerivs = [diff(motionParams); zeros(1,size(motionParams,2))];

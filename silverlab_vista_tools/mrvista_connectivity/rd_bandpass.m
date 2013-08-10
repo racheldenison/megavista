@@ -10,7 +10,7 @@ function y = rd_bandpass(x, freqrange, fs, n)
 % freqrange = [.009 .08];
 % fs = 0.5;
 
-if nargin < 4
+if nargin < 4 || isempty(n)
     n = 50;
 end
 
