@@ -15,8 +15,8 @@ analStr = 'rfng';
 measures = {'roiCorr'}; % 'roiCorr','roiCoh' (any combination)
 
 % can loop through these
-scanNames = {'fix 1'}; % 'fix 1', 'M 1', 'P 1'
-voxelSelections = {'all','extreme','varthresh'}; % 'all','extreme','varthresh'
+scanNames = {'mp_blankCond'}; % 'fix 1', 'M 1', 'P 1'
+voxelSelections = {'all'}; % 'all','extreme','varthresh'
 seedHemis = [1 2]; % plot connectivity between M and P ROIs in this hemisphere and all other ROIs
 
 % get subject initials from current directory

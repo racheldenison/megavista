@@ -26,7 +26,8 @@ switch hemi
 end
 switch voxelSelection
     case 'all'
-        analysisExt = 'M_etal_rfng_20130806';
+%         analysisExt = 'M_etal_rfng_20130806';
+        analysisExt = 'M_etal_rfng_20130809';
     case 'extreme'
         analysisExt = 'betaM-P_prop10_varThresh000_groupM_etal_rfng_20130806';
     case 'varexp'
@@ -35,9 +36,13 @@ switch voxelSelection
         error('voxelSelection not recognized')
 end
 
-F = load(sprintf('ConnectivityAnalysis/left-right/fix1_%s_%s.mat', lgnROI, analysisExt));
-M = load(sprintf('ConnectivityAnalysis/left-right/M1_%s_%s.mat', lgnROI, analysisExt));
-P = load(sprintf('ConnectivityAnalysis/left-right/P1_%s_%s.mat', lgnROI, analysisExt));
+% F = load(sprintf('ConnectivityAnalysis/left-right/fix1_%s_%s.mat', lgnROI, analysisExt));
+% M = load(sprintf('ConnectivityAnalysis/left-right/M1_%s_%s.mat', lgnROI, analysisExt));
+% P = load(sprintf('ConnectivityAnalysis/left-right/P1_%s_%s.mat', lgnROI, analysisExt));
+
+F = load(sprintf('ConnectivityAnalysis/left-right/mp_blankCond_%s_%s.mat', lgnROI, analysisExt));
+M = load(sprintf('ConnectivityAnalysis/left-right/mp_MCond_%s_%s.mat', lgnROI, analysisExt));
+P = load(sprintf('ConnectivityAnalysis/left-right/mp_PCond_%s_%s.mat', lgnROI, analysisExt));
 
 analStr = F.preproc.analStr;
 rois = F.rois;
