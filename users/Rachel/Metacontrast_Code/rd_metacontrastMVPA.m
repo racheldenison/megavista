@@ -1,8 +1,10 @@
-% rd_metacontrastMVPA.m
+function [perf, nvox] = rd_metacontrastMVPA(soaCode, thresh)
 
 %% setup
-data = load('data_SOACode6.dat');
-class = load('dataClass_SOACode6.dat');
+% soaCode = 6;
+
+data = load(sprintf('data_SOACode%d.dat', soaCode));
+class = load(sprintf('dataClass_SOACode%d.dat', soaCode));
 
 nRuns = 10;
 
@@ -56,7 +58,7 @@ subj = create_xvalid_indices(subj,'runs');
 
 % run the anova multiple times, separately for each iteration,
 % using the selector indices created above
-[subj] = feature_select(subj,'epi_z','conds','runs_xval');
+[subj] = feature_select(subj,'epi_z','conds','runs_xval','thresh',thresh);
 
 %% CLASSIFICATION - n-minus-one cross-validation
 % set some basic arguments for a backprop classifier
@@ -70,7 +72,12 @@ class_args.penalty = 10;
 
 % now, run the classification multiple times, training and testing
 % on different subsets of the data on each iteration
-[subj results] = cross_validation(subj,'epi_z','conds','runs_xval','epi_z_thresh0.05',class_args);
+epizstr = sprintf('epi_z_thresh%s', num2str(thresh));
+[subj, results] = cross_validation(subj,'epi_z','conds','runs_xval', epizstr, class_args);
+% [subj, results] = cross_validation(subj,'epi_z','conds','runs_xval','cube',class_args);
 
-
-
+%% Extract classifier performance data and other info
+for iRun = 1:nRuns
+    perf(iRun,1) = results.iterations(iRun).perf;
+    nvox(iRun,1) = subj.masks{iRun+1}.nvox;
+end

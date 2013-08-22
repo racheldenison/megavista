@@ -53,6 +53,8 @@ if notDefined('params'),      params = er_defaultParams;  end
 if notDefined('reshapeFlag'), reshapeFlag = 0;            end
 if notDefined('tSeries'),     tSeries = [];               end
 if notDefined('dmNorm'),      dmNorm = 'unitPeak';        end
+% if notDefined('dmNorm'),      dmNorm = 'none';            end
+if notDefined('hrfNorm'),     hrfNorm = 1;                end % makes hrf peak = 1
 if notDefined('includeMotionRegressors'), includeMotionRegressors = 0; end
 
 tr = params.framePeriod;
@@ -140,6 +142,11 @@ else
         hrf = glm_hrf(params);
     end
     
+    % normalize HRF so that its max = 1
+    if hrfNorm
+        hrf = hrf/max(hrf);
+    end
+    
     % apply HRF -- return a 2D matrix covering whole time course
     % (at this point, the HRF is in units of MR frames, not seconds)
     [X, hrf] = glm_convolve(stim, params, hrf, nFrames);    
@@ -174,11 +181,13 @@ switch lower(dmNorm)
         for i = 1:size(X, 2)
             X(:,i) = X(:,i) ./ max(abs(X(:,i)));
         end
+        disp('Normalizing design matrix columns: unitPeak')
     case 'unitamp'
         disp('Not yet implemented')
     case 'spm'
         disp('Not yet implemented')
     otherwise
+        disp('Not normalizing the design matrix columns')
 end
 
 if reshapeFlag==1
