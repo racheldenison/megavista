@@ -52,6 +52,8 @@ switch voxelSelectionOption
     case 'varExp' 
         threshDescrip = sprintf('%0.03f', varThresh);
         voxDescrip = ['varThresh' threshDescrip(3:end)];
+    case 'dataPositive'
+        voxDescrip = 'dataPos';
     otherwise
         error('voxelSelectionOption not found when setting voxDescrip.')
 end
@@ -71,6 +73,8 @@ load(loadPath)
 %% Choose data to show here
 betas = squeeze(figData.glm.betas(1,1:2,:))';
 topoData = betas*betaWeights';
+% topoData(topoData<0) = 100;
+% topoData = figData.glm.varianceExplained';
 mapName = sprintf('Hemi %d %s %s %s', hemi, name, voxDescrip, satDescrip);
 
 %% Any voxel selection?
@@ -82,6 +86,8 @@ switch voxelSelectionOption
         voxelSelector = voxelSelector';
     case 'varExp'
         voxelSelector = figData.glm.varianceExplained > varThresh;
+    case 'dataPositive'
+        voxelSelector = (topoData > 0)';
     otherwise
         error('voxelSelectionOption not found');
 end
@@ -203,9 +209,11 @@ for iSlice = 1:length(slices)
     % modulate the color values by saturation level
     rgbVals = cmap(cBins,:);
     hsvVals = rgb2hsv(rgbVals);
-    vVals = hsvVals(:,3);
+%     vVals = hsvVals(:,3);
+    sVals = hsvVals(:,2);
     hsvSVals = hsvVals;
-    hsvSVals(:,3) = vVals.*sats;
+%     hsvSVals(:,3) = vVals.*sats;
+    hsvSVals(:,2) = sVals.*sats;
     rgbSVals = hsv2rgb(hsvSVals);
     
     % make the base brain picture
