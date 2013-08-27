@@ -6,8 +6,8 @@
 %% Setup
 hemi = 2;
 mapName = 'betaM-P';
-prop = .2;
-varThresh = 0.035; 
+prop = 0.2;
+varThresh = 0.0055; 
 
 groupNames = {'M','P'};
 
