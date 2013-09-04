@@ -39,8 +39,15 @@ fprintf('\nTR: %1.2f s', TR)
 fprintf('\nNumber of frames in scan: %d', nFrames)
 fprintf('\nBlock length: %d TRs\n', blockLength)
 
-[seconds, conditions, labels, colors] = ...
-    textread(sprintf('Stimuli/parfiles/%s', parfile), '%f %d %s %16c');
+% [seconds, conditions, labels, colors] = ...
+%     textread(sprintf('Stimuli/parfiles/%s', parfile), '%f %d %s %16c');
+
+fid = fopen(sprintf('Stimuli/parfiles/%s', parfile));
+C = textscan(fid, '%f %d %s %*[^\n]'); % skip the rest of the line
+fclose(fid);
+
+seconds = C{1};
+conditions = C{2};
 
 frames = seconds/TR + 1; % parfiles start at time zero
 
