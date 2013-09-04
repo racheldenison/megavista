@@ -44,7 +44,7 @@ def merge_chunks(c):
         return np.vstack(c)
     return c
 
-def main(condNum):
+def main(condNum=0):
     print 'Running SVM'
     # generate random data or use existing data?
     generateData = False
@@ -56,10 +56,11 @@ def main(condNum):
     # dimensions (only works if generateData)
     d = 13
     # number of training and test partitions
-    numsets = 10
+    numsets = 84
     # FileNames (for !generateData)
-    condName = 'SOACode{}'.format(condNum)
-    jackknifeType = 'LeaveOneRunOut'
+    # condName = 'SOACode{}'.format(condNum)
+    condName = 'OrientLoc'
+    jackknifeType = 'LeaveOneTrialOut'
     if generateData:
         datafolder = jackknifeType + '/Sim_'+ condName + '/'
     else:
@@ -163,7 +164,8 @@ def main(condNum):
             ave1 = utils.arrayMean(utils.cloud(data, dataClass, 1))
             # print "ave0", ave0, "\nave1", ave1
 
-            scaler = preprocessing.StandardScaler().fit(data) # in older versions of sklearn, just 'Scaler'
+            # scaler = preprocessing.StandardScaler().fit(data) # in older versions of sklearn, just 'Scaler'
+            scaler = preprocessing.Scaler().fit(data)            
             scaledData = scaler.transform(data) 
             dataMean = np.mean(data,axis=0)
             dataSTD = np.std(data,axis=0)
@@ -331,4 +333,5 @@ def main(condNum):
         plt.close('all')
 
 if __name__ == '__main__':
-    main(condNum)
+    # main(condNum)
+    main()

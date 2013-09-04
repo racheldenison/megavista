@@ -5,12 +5,12 @@
 dt = 3;
 scan = 13;
 conds = [1 2];
-roiName = 'Target_V1';
+roiName = 'TargetMask_V1-V3';
 
 % file I/O
 multiVoxFile = sprintf('ROIAnalysis/%s/orientLoc_multiVoxFigData.mat', roiName);
-dataFile = sprintf('ROIAnalysis/%s/data_OrientLoc.mat', roiName);
-classFile = sprintf('ROIAnalysis/%s/dataClass_OrientLoc.mat', roiName);
+dataFile = sprintf('ROIAnalysis/%s/data_OrientLoc.dat', roiName);
+classFile = sprintf('ROIAnalysis/%s/dataClass_OrientLoc.dat', roiName);
 
 % load multiVoxFigData from ROI analysis directory
 load(multiVoxFile)
