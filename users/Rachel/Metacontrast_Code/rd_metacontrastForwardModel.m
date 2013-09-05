@@ -13,6 +13,14 @@ meta = load('metaCondByDir_multiVoxFigData.mat');
 W = squeeze(orient.figData.glm.betas(:,1:2,:))';
 Bexp = squeeze(meta.figData.glm.betas(:,1:14,:))';
 
+% %%%%%% test using timepoints from localizer %%%%%%
+% data = load('data_OrientLoc.dat');
+% class = load('dataClass_OrientLoc.dat');
+% a = [class data];
+% b = sortrows(a,1);
+% Bexp = b(:,2:end)';
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % calculate channel responses from main experiment
 Cexp = pinv(W)*Bexp;
 

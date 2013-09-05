@@ -5,7 +5,7 @@
 dt = 3;
 scan = 13;
 conds = [1 2];
-roiName = 'TargetMask_V1-V3';
+roiName = 'Mask_V1';
 
 % file I/O
 multiVoxFile = sprintf('ROIAnalysis/%s/orientLoc_multiVoxFigData.mat', roiName);

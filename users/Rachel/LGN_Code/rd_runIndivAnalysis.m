@@ -1,6 +1,6 @@
 % rd_runIndivAnalysis.m
 
-scanner = '7T';
+scanner = '3T';
 
 [subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
 switch scanner
@@ -151,14 +151,19 @@ for iSubject = 1:nSubjects
 %     rd_centerOfMassNormGroupStats % (uses files saved from rd_centerOfMassNormGroupAnalysis, coords as proportion of LGN extent)
 
     %% connectivity sequence
-    rd_fslCreateMotionRegressors % make motion params regressors
-    rd_mrMakeWMCSFRegressors % make wm, csf, global regressors
-    rd_mrMakeMPROI % make M and P ROIs
-    rd_mrMeanTSeriesCorrelation % ROI-to-ROI connectivity
-    rd_mrMeanTSeriesCorrelationMultiScan % ROI-to-ROI connectivity, MP blocks
-    rd_runPlotMPROIConnectivity % makes bar plots of M and P ROI connectivity, can select ROIs from within rd_plotMPROIConnectivity.m
-    rd_connectivityMatDiff % make M/P bar plots, compare fix, M, and P scans
-    SeedConstruction % ROI-to-voxel connectivity
+%     rd_fslCreateMotionRegressors % make motion params regressors
+%     rd_mrMakeWMCSFRegressors % make wm, csf, global regressors
+%     rd_mrMakeMPROI % make M and P ROIs
+%     rd_mrMeanTSeriesCorrelation % ROI-to-ROI connectivity
+%     rd_mrMeanTSeriesCorrelationMultiScan % ROI-to-ROI connectivity, MP blocks
+%     rd_runPlotMPROIConnectivity % makes bar plots of M and P ROI connectivity, can select ROIs from within rd_plotMPROIConnectivity.m
+%     rd_connectivityMatDiff % make M/P bar plots, compare fix, M, and P scans
+%     SeedConstruction % ROI-to-voxel connectivity
+
+    %% miscellaneous
+%     cd ../..
+%     rd_mrROISize({'ROI101','ROI201'})
+    [nvox(iSubject,:) varexp(iSubject,:)] = rd_comparePosNegBetaGroups;
 end
 
 
