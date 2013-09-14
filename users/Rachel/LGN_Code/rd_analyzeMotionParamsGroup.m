@@ -16,6 +16,8 @@ end
 % subjects = 1:size(subjectDirs,1);
 nSubjects = numel(subjects);
 
+scanNumIdx = 4:5; % characters in the file name containing the scan number
+
 plotFigs = 1;
 
 % run specified individual analysis script in subject directory
@@ -28,8 +30,16 @@ for iSubject = 1:nSubjects
     cd(dirPath)
     
     niftiDir = sprintf('%s_nifti', dirName);
-    motionFiles = dir(sprintf('%s/*.par',niftiDir));
-    scans = 1:numel(motionFiles); % assume scans are numbered from 1
+    motionFilesHemi = dir(sprintf('%s/*hemi_mcf.par',niftiDir));
+    motionFilesMP = dir(sprintf('%s/*mp_mcf.par',niftiDir));
+    motionFiles = [motionFilesHemi; motionFilesMP];
+    scans = zeros(1,numel(motionFiles));
+    for iMF = 1:numel(motionFiles)
+        scans(iMF) = str2num(motionFiles(iMF).name(scanNumIdx));
+    end
+    scans = sort(scans);
+%     motionFiles = dir(sprintf('%s/*.par',niftiDir));
+%     scans = 1:numel(motionFiles); % assume scans are numbered from 1
     
     motionRegressorsGroup{iSubject} = rd_mrCreateMotionRegressors(niftiDir, scans, plotFigs);
     
