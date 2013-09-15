@@ -11,6 +11,7 @@
 %% setup
 mapName = 'ROIX01';
 scan = 1;
+scaleFactor = [2 2 1];
 
 saveMap = 1;
 saveFile = sprintf('Inplane/GLMs/%s.mat', mapName);
@@ -25,7 +26,8 @@ for iROI = 1:nROIs
     coords = INPLANE{1}.ROIs(iROI).coords;
     
     for iCoord = 1:size(coords,2)
-        cnow = coords(:,iCoord);
+%         cnow = coords(:,iCoord);
+        cnow = round(coords(:,iCoord)./scaleFactor');
         roimap(cnow(1),cnow(2),cnow(3)) = 1;
     end
 end

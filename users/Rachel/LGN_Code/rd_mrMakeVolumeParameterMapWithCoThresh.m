@@ -10,13 +10,27 @@
 
 viewName = 'Volume'; % 'Volume','Gray'
 mapPath = 'GLMs/BetaM-P'; % 'GLMs/BetaM-P', 'GLMs/MVP'
-threshPath = 'GLMs/Proportion Variance Explained'; % 'Averages.corAnal', 'GLMs/Proportion Variance Explained'
-threshField = 'map'; % 'co', 'map'
+threshPath = 'Averages/corAnal'; % 'Averages/corAnal', 'GLMs/Proportion Variance Explained'
+% threshField = 'map'; % 'co', 'map'
+
+switch threshPath
+    case 'Averages/corAnal'
+        threshField = 'co';
+        threshStr = 'coranal';
+        getThreshMapPhases = 1;
+    case 'GLMs/Proportion Variance Explained'
+        threshField = 'map';
+        threshStr = 'varexp';
+        getThreshMapPhases = 0;
+    otherwise
+        error('threshPath not recognized')
+end
 
 % files
 origMapFile = sprintf('%s/%s.mat', viewName, mapPath);
 threshFile = sprintf('%s/%s.mat', viewName, threshPath);
-newMapFile = origMapFile;
+% newMapFile = origMapFile;
+newMapFile = sprintf('%s/%s_%sThresh.mat', viewName, mapPath, threshStr);
 
 % load parameter map
 viewMap = load(origMapFile);
@@ -32,7 +46,15 @@ numGrays = viewMap.numGrays;
 % load thresh map (eg. corAnal)
 viewThreshMap = load(threshFile);
 co = viewThreshMap.(threshField);
+if getThreshMapPhases
+    ph = viewThreshMap.ph;
+end
 
-save(newMapFile, 'map', 'mapName', 'mapUnits',...
-    'cmap', 'clipMode', 'numColors', 'numGrays', 'co')
+if getThreshMapPhases
+    save(newMapFile, 'map', 'mapName', 'mapUnits',...
+        'cmap', 'clipMode', 'numColors', 'numGrays', 'co','ph')
+else
+    save(newMapFile, 'map', 'mapName', 'mapUnits',...
+        'cmap', 'clipMode', 'numColors', 'numGrays', 'co')
+end
 
