@@ -27,10 +27,15 @@ for iSubject = 1:nSubjects
     
     % run script 
      %% plot maps
-     load ../../mrSESSION.mat
-     voxelSize = mrSESSION.functionals(1).voxelSize;
-     aspectRatio = voxelSize([3 1 2]);
-     rd_quickPlotBetaMapsSat
+%      load ../../mrSESSION.mat
+%      voxelSize = mrSESSION.functionals(1).voxelSize;
+%      aspectRatio = voxelSize([3 1 2]);
+%      rd_quickPlotBetaMapsSat
+
+    %% display maps on Volume
+%     rd_mrMakeVolumeParameterMapWithCoThresh
+%     rd_makeROIParameterMap
+%     rd_mrColormapToLbmapBlueRed(VOLUME{1})
 
      %% plot beta value and variance explained bar graphs
 %      rd_mrGLMReliability
