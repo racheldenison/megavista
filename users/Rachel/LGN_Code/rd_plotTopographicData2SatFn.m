@@ -1,5 +1,5 @@
 function brainSliceMaps = rd_plotTopographicData2SatFn(hemi, voxelSelectionOption, ...
-    saturationOption, betaWeights, name, varThresh, saveFigs)
+    saturationOption, betaWeights, name, varThresh, aspectRatio, saveFigs)
 %
 % function rd_plotTopographicData2Fn(hemi, voxelSelectionOption, ...
 %     saturationOption, betaWeights, name, varThresh)
@@ -20,7 +20,11 @@ function brainSliceMaps = rd_plotTopographicData2SatFn(hemi, voxelSelectionOptio
 %% Setup
 cmapOption = 'default'; % ['default','thresh']
 plotFormat = 'singleRow'; % ['default','singleRow'] % singleRow plots slices in a row, and in reverse order. only tested for coronal slices.
-aspectRatio = [1.575 1.75 1]; % use voxel size (for coronal, [Z X Y])
+% aspectRatio = [1.575 1.75 1]; % use voxel size (for coronal, [Z X Y])
+if isempty(aspectRatio)
+    aspectRatio = [1 1 1];
+end
+
 switch name
     case 'betaM'
         colormapName = 'whitered';

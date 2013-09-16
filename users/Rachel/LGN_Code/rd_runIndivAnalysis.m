@@ -1,6 +1,6 @@
 % rd_runIndivAnalysis.m
 
-scanner = '3T';
+scanner = '7T';
 
 [subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
 switch scanner
@@ -12,7 +12,7 @@ switch scanner
         subjects = [1:5 7 8];
 end
 
-% subjects = 7:8;
+% subjects = [2];
 % subjects = 1:size(subjectDirs,1);
 nSubjects = numel(subjects);
 
@@ -27,7 +27,10 @@ for iSubject = 1:nSubjects
     
     % run script 
      %% plot maps
-%     rd_quickPlotBetaMapsSat
+     load ../../mrSESSION.mat
+     voxelSize = mrSESSION.functionals(1).voxelSize;
+     aspectRatio = voxelSize([3 1 2]);
+     rd_quickPlotBetaMapsSat
 
      %% plot beta value and variance explained bar graphs
 %      rd_mrGLMReliability
@@ -163,7 +166,7 @@ for iSubject = 1:nSubjects
     %% miscellaneous
 %     cd ../..
 %     rd_mrROISize({'ROI101','ROI201'})
-    [nvox(iSubject,:) varexp(iSubject,:)] = rd_comparePosNegBetaGroups;
+%     [nvox(iSubject,:) varexp(iSubject,:)] = rd_comparePosNegBetaGroups;
 end
 
 

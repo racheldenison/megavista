@@ -15,16 +15,19 @@ hemis = [1 2];
 % varThreshs = [.005 .01 .02 .05];
 
 % Selected ops:
-voxSelectOptions = {'all'};
+voxSelectOptions = {'all','varExp'};
 saturationOptions = {'full'};
-betaSettings = {[.5 -.5], 'betaM-P'; ...
-                [1 0], 'betaM'; ...
-                [0 1], 'betaP'};
-% betaSettings = {[.5 -.5], 'betaM-P'};
+% betaSettings = {[.5 -.5], 'betaM-P'; ...
+%                 [1 0], 'betaM'; ...
+%                 [0 1], 'betaP'};
+betaSettings = {[.5 -.5], 'betaM-P'};
 % betaSettings = {[1 0], 'betaM'};
 % betaSettings = {[0 1], 'betaP'};
+% varThreshs = 0.02;
 
-saveFigs = 0;
+% aspectRatio = [];
+
+saveFigs = 1;
 
 for iHemi = 1:numel(hemis)
     hemi = hemis(iHemi);
@@ -45,7 +48,8 @@ for iHemi = 1:numel(hemis)
                         
                         rd_plotTopographicData2SatFn(hemi, ...
                             voxelSelectionOption, saturationOption, ...
-                            betaWeights, betaWeightsName, varThresh, saveFigs);
+                            betaWeights, betaWeightsName, varThresh, ...
+                            aspectRatio, saveFigs);
                         
                     case 'varExp'
                         for iThresh = 1:numel(varThreshs)
@@ -53,7 +57,8 @@ for iHemi = 1:numel(hemis)
                             
                             rd_plotTopographicData2SatFn(hemi, ...
                                 voxelSelectionOption, saturationOption, ...
-                                betaWeights, betaWeightsName, varThresh, saveFigs);
+                                betaWeights, betaWeightsName, varThresh, ...
+                                aspectRatio, saveFigs);
                         end
                         
                     otherwise
