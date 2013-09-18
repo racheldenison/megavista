@@ -55,7 +55,8 @@ end
 % get indices from bar graph (plot order)
 withinFieldComparisons = [1:2 7:10];
 betweenFieldComparisons = [3:6 11:12];
-comparisonsToExclude = 4:6;
+% comparisonsToExclude = 4:6;
+comparisonsToExclude = [];
 
 wfIdx = setdiff(withinFieldComparisons, comparisonsToExclude);
 bfIdx = setdiff(betweenFieldComparisons, comparisonsToExclude);
@@ -64,10 +65,14 @@ vals = mapValCorrs(plotOrder);
 
 wfvals = vals(wfIdx);
 bfvals = vals(bfIdx);
+allvals = [wfvals bfvals];
 
 wfMean = mean(wfvals);
 bfMean = mean(bfvals);
-allMean = mean([wfvals bfvals]);
+allMean = mean(allvals);
 
 % are within-field correlations different from between-field correlations?
-[h p ci stat] = ttest2(wfvals, bfvals);
+[h p ci stat] = ttest2(wfvals, bfvals)
+
+% are correlations different from zero, as a group?
+[h p ci stat] = ttest(vals)

@@ -5,7 +5,7 @@
 s1 = map1ROIVals;
 s2 = map2ROIVals;
 n = length(s1);
-
+r = mapValCorr;
 
 %% 6. Test hypothesis
 %
