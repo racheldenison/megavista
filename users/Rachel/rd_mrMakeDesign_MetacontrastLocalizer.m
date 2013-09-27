@@ -1,23 +1,35 @@
 % Metacontrast Orientation Localizer -- make par files for mrVista
 
-cd /Volumes/Plata1/Metacontrast/Expt_Files/CG_20130403/localizer/data
+% cd /Volumes/Plata1/Metacontrast/Expt_Files/CG_20130403/localizer/data
+% cd /Volumes/Plata1/Metacontrast/Expt_Files/AL_20130911/localizer_20130829/data
+cd /Volumes/Plata1/Metacontrast/Expt_Files/AK_20130910/localizer_20130829/data
 
-subjectID = 'CG';
+subjectID = 'AK';
 runs = 1;
-scanDate = '20130403';
+scanDate = '20130910';
+
+localizerType = 'targetmask'; % 'orientation','targetmask'
 
 includeColors = 0;
 
 blankCol = [128 128 128]./255; % gray
-leftCol = [220 20 60]./255; % red
-rightCol = [0 0 205]./255; % medium blue
-colors = {blankCol, leftCol, rightCol};
+cond1Col = [220 20 60]./255; % red
+cond2Col = [0 0 205]./255; % medium blue
+colors = {blankCol, cond1Col, cond2Col};
 
+switch localizerType
+    case 'targetmask'
+        localizerFName = 'TargetMaskLocalizer';
+    case 'orientation'
+        localizerFName = 'BlockGratings';
+    otherwise
+        error('localizerType not recognized')
+end
 
 for iRun = 1:length(runs)
     run = runs(iRun);
-    load(sprintf('%s_run%02d_BlockGratings_%s', ...
-        subjectID, run, scanDate), 'p'); 
+    load(sprintf('%s_run%02d_%s_%s', ...
+        subjectID, run, localizerFName, scanDate), 'p'); 
     
     condNames = p.condNames;
     blankCond = find(strcmp(condNames,'blank'));
@@ -40,7 +52,7 @@ for iRun = 1:length(runs)
     end
     
     % write text file
-    fileName = sprintf('%s_%s_orientation_run%02d.par', subjectID, scanDate, run);
+    fileName = sprintf('%s_%s_%s_run%02d.par', subjectID, scanDate, localizerType, run);
     fid = fopen(fileName,'w');
     for iEvent = 1:nEvents
         fprintf(fid, '%3.2f\t%d\t%s', events(iEvent,:), eventNames{iEvent});
