@@ -12,11 +12,12 @@
 % cd /Users/anvu/Documents/DATA/Rachel/MP/Behav/JN_20120808
 % cd /Users/anvu/Documents/DATA/Rachel/MP/Behav/RD_20120809
 % cd /Volumes/Plata1/LGN/Expt_Files/MN_20120806_MP/MagnoParvo_Localizer/data
-cd /Volumes/Plata1/LGN/Expt_Files/CM_20121031/MagnoParvo_Localizer/data
+% cd /Volumes/Plata1/LGN/Expt_Files/CM_20121031/MagnoParvo_Localizer/data
+cd /Volumes/Plata1/LGN/Expt_Files/RD_20130921/MagnoParvo_Localizer/data
 
-subjectID = 'CM';
-runs = 1:8;
-scanDate = '20121031';
+subjectID = 'RD';
+runs = 1:7;
+scanDate = '20130921';
 
 includeResponseCond = 0;
 includeColors = 1;

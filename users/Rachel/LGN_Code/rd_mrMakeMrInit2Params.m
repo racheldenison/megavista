@@ -11,17 +11,21 @@ function params = rd_mrMakeMrInit2Params
 % Rachel Denison
 % 2011 Nov 21
 
+% can run this before running mrInit2 if you want to get a crop
+% params = mrInitGUI_crop(params);
+
 % ------------------------------------------------------------------------
 % Setup
 % ------------------------------------------------------------------------
 % Here we have the most common analysis settings that are specific to an
 % individual experiment
-subjectID = 'MN';
-description = 'MN_20120806_recon2';
+subjectID = 'RD';
+description = 'RD_20130921';
 comments = '';
 
 % Scan groups
-scanGroups = {[2 10], 3:9, 1}; % MN recon 2 {hemi, mp, fix}. mp has 3 variants of epi03.
+scanGroups = {[2 10], 3:9, [1 11 14], 12, 13};  % RD_20130921 {hemi, mp, fix, M, P}
+% scanGroups = {[2 10], 3:9, 1}; % MN recon 2 {hemi, mp, fix}. mp has 3 variants of epi03.
 % scanGroups = {[2 8], 3:7, 1}; % MN {hemi, mp, fix}
 % scanGroups = {[2 11], 3:10, [1 13 12 14]}; % RD {hemi, mp, steady [fix M P fullField]}
 % scanGroups = {[2 11], 3:10, 1, 12, 13}; % JN {hemi, mp, fix, M, P}
@@ -36,11 +40,12 @@ scanGroups = {[2 10], 3:9, 1}; % MN recon 2 {hemi, mp, fix}. mp has 3 variants o
 % scanGroups = {[1 11], 2:10}; % scan numbers in each scan group
 
 % Keep frames
+scanGroupKeepFrames = {[8 128], [4 135], [8 -1], [8 -1], [8 -1]}; % RD_20130921
 % scanGroupKeepFrames = {[32 -1], [8 270]}; % CM 3T zoom (TR=1s)
 % scanGroupKeepFrames = {[5 -1], [3 90], [10, -1]}; % RD 7T Aug (TR=3s)
 % scanGroupKeepFrames = {[8 128], [4 135], [16 -1], [16 -1], [16 -1]}; % JN 
 % scanGroupKeepFrames = {[8 128], [4 135], [16 -1]}; % JN distortion-corrected
-scanGroupKeepFrames = {[8 128], [4 135], [16 -1]}; % SB, MN 
+% scanGroupKeepFrames = {[8 128], [4 135], [16 -1]}; % SB, MN 
 % scanGroupKeepFrames = {[8 128], [4 135], [0 180]}; % SB distortion-corrected (only thowing away the final frame (the response))
 % scanGroupKeepFrames = {[4 135]}; % KS 1.25
 % scanGroupKeepFrames = {[16 -1], [4 135]}; % 7T
@@ -48,9 +53,9 @@ scanGroupKeepFrames = {[8 128], [4 135], [16 -1]}; % SB, MN
 
 % Annotations
 % scanGroupNames = {'mp'}; % KS 1.25
-% scanGroupNames = {'hemi','mp','fix','M','P'};
+scanGroupNames = {'hemi','mp','fix','M','P'};
 % scanGroupNames = {'hemi','mp','steady'};
-scanGroupNames = {'hemi','mp','fix'};
+% scanGroupNames = {'hemi','mp','fix'};
 % scanGroupNames = {'hemi','mp'};
 
 % Parfiles
@@ -84,15 +89,21 @@ niftiDir = [f '_nifti'];
 inplaneFile = dir([niftiDir '/gems*.nii.gz']);
 inplane = sprintf('%s/%s/%s/%s', p, f, niftiDir, inplaneFile.name);
 
-functionalFiles = dir([niftiDir '/*mcf.nii.gz']); % /*mcf.nii.gz, /*fsldc.nii.gz
-for iFunc = 1:numel(functionalFiles)
-    functionals{iFunc,1} = sprintf('%s/%s/%s/%s', ...
-        p, f, niftiDir, functionalFiles(iFunc).name);
+featDirs = dir([niftiDir '/epi*.feat']);
+for iFunc = 1:numel(featDirs)
+    functionals{iFunc,1} = sprintf('%s/%s/%s/%s/%s', ...
+        p, f, niftiDir, featDirs(iFunc).name, 'filtered_func_data.nii.gz');
 end
+% functionalFiles = dir([niftiDir '/*mcf.nii.gz']); % /*mcf.nii.gz, /*fsldc.nii.gz
+% for iFunc = 1:numel(functionalFiles)
+%     functionals{iFunc,1} = sprintf('%s/%s/%s/%s', ...
+%         p, f, niftiDir, functionalFiles(iFunc).name);
+% end
 
 % vAnatomy = sprintf('%s/%s/Anatomicals/vAnatomy.dat', p, f);
 % vAnatomy = sprintf('%s/%s/Anatomicals/ot1mpr.nii.gz', p, f);
-vAnatomy =  sprintf('/Volumes/Plata1/Anatomies/Anatomicals/%s/vAnatomy.dat', subjectID);
+% vAnatomy =  sprintf('/Volumes/Plata1/Anatomies/Anatomicals/%s/vAnatomy.dat', subjectID);
+vAnatomy =  sprintf('/Volumes/Plata1/Anatomies/Anatomicals/%s/RD_ave/vAnatomy.dat', subjectID);
 
 % Expect to find parfiles in the specified directory
 parfileDir = 'Stimuli/parfiles';
@@ -170,7 +181,7 @@ params.sliceTimingCorrection = 0;
 params.motionCompRefScan = 1;
 params.motionCompRefFrame = 1;
 params.doDescription = 1;
-params.doCrop = 0;
+params.doCrop = 1; % 0
 params.doAnalParams = 1;
 params.doPreprocessing = 0;
 params.doSkipFrames = 1;

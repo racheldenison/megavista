@@ -39,7 +39,7 @@ end
 % colormapName = 'whitered'; % ['whitered','whiteblue','lbmap', otherwise > 'jet']
 cScaleOption = 'scaleToData'; % ['scaleToData','chooseCRange']
 cValRange = [-.95 .95]; % if using chooseCRange
-saveAnalysis = 0;
+saveAnalysis = 1;
 
 iROI = 1; % only plotting one ROI at a time here
 
