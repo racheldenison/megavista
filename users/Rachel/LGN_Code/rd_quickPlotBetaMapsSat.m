@@ -15,7 +15,7 @@ hemis = [1 2];
 % varThreshs = [.005 .01 .02 .05];
 
 % Selected ops:
-voxSelectOptions = {'all','varExp'};
+voxSelectOptions = {'all'};
 saturationOptions = {'full'};
 betaSettings = {[.5 -.5], 'betaM-P'; ...
                 [1 0], 'betaM'; ...

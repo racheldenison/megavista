@@ -19,12 +19,15 @@ function params = rd_mrMakeMrInit2Params
 % ------------------------------------------------------------------------
 % Here we have the most common analysis settings that are specific to an
 % individual experiment
-subjectID = 'RD';
-description = 'RD_20130921';
+subjectID = 'VB';
+description = 'VB_20130922';
 comments = '';
 
 % Scan groups
-scanGroups = {[2 10], 3:9, [1 11 14], 12, 13};  % RD_20130921 {hemi, mp, fix, M, P}
+% scanGroups = {[2 10], 3:9, [1 16], 11, 12, [13 14], 15};  % PL_20130922 {hemi, mp, fix, M, P, MTLoc, FaceScene}
+scanGroups = {[2 10], 3:9, [1 15], 12, 11, [13 14], 16};  % VB_20130922 {hemi, mp, fix, M, P, MTLoc, FaceScene}
+% scanGroups = {[2 10], 3:9, [1 13 14], 12, 11};  % AV_20130922 {hemi, mp, fix, M, P}
+% scanGroups = {[2 10], 3:9, [1 11 14], 12, 13};  % RD_20130921 {hemi, mp, fix, M, P}
 % scanGroups = {[2 10], 3:9, 1}; % MN recon 2 {hemi, mp, fix}. mp has 3 variants of epi03.
 % scanGroups = {[2 8], 3:7, 1}; % MN {hemi, mp, fix}
 % scanGroups = {[2 11], 3:10, [1 13 12 14]}; % RD {hemi, mp, steady [fix M P fullField]}
@@ -40,7 +43,8 @@ scanGroups = {[2 10], 3:9, [1 11 14], 12, 13};  % RD_20130921 {hemi, mp, fix, M,
 % scanGroups = {[1 11], 2:10}; % scan numbers in each scan group
 
 % Keep frames
-scanGroupKeepFrames = {[8 128], [4 135], [8 -1], [8 -1], [8 -1]}; % RD_20130921
+scanGroupKeepFrames = {[8 128], [4 135], [8 -1], [8 -1], [8 -1], [6 72], [0 -1]}; % VB_20130922, PL_20130922
+% scanGroupKeepFrames = {[8 128], [4 135], [8 -1], [8 -1], [8 -1]}; % RD_20130921, AV_20130922
 % scanGroupKeepFrames = {[32 -1], [8 270]}; % CM 3T zoom (TR=1s)
 % scanGroupKeepFrames = {[5 -1], [3 90], [10, -1]}; % RD 7T Aug (TR=3s)
 % scanGroupKeepFrames = {[8 128], [4 135], [16 -1], [16 -1], [16 -1]}; % JN 
@@ -52,8 +56,9 @@ scanGroupKeepFrames = {[8 128], [4 135], [8 -1], [8 -1], [8 -1]}; % RD_20130921
 % scanGroupKeepFrames = {[6 132], [4 -1]}; % 3T [frames-to-discard frames-to-keep]
 
 % Annotations
+scanGroupNames = {'hemi', 'mp', 'fix', 'M', 'P', 'MTLoc', 'FaceScene'};
 % scanGroupNames = {'mp'}; % KS 1.25
-scanGroupNames = {'hemi','mp','fix','M','P'};
+% scanGroupNames = {'hemi','mp','fix','M','P'};
 % scanGroupNames = {'hemi','mp','steady'};
 % scanGroupNames = {'hemi','mp','fix'};
 % scanGroupNames = {'hemi','mp'};
@@ -103,7 +108,7 @@ end
 % vAnatomy = sprintf('%s/%s/Anatomicals/vAnatomy.dat', p, f);
 % vAnatomy = sprintf('%s/%s/Anatomicals/ot1mpr.nii.gz', p, f);
 % vAnatomy =  sprintf('/Volumes/Plata1/Anatomies/Anatomicals/%s/vAnatomy.dat', subjectID);
-vAnatomy =  sprintf('/Volumes/Plata1/Anatomies/Anatomicals/%s/RD_ave/vAnatomy.dat', subjectID);
+vAnatomy =  sprintf('/Volumes/Plata1/Anatomies/Anatomicals/%s/vAnatomy.dat', subjectID);
 
 % Expect to find parfiles in the specified directory
 parfileDir = 'Stimuli/parfiles';
