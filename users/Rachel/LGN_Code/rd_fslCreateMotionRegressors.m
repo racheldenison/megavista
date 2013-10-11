@@ -4,15 +4,20 @@
 % nifti directory
 % get the frames to keep and discard from mrInit2_params
 
-scans = 1:9;
+scans = 1:16; % all scans in session
 % featDir = '../Field_Mapping/JN_20120808_field_map_nifti/feat_attempt/feat_preprocess_all/epis';
-featDir = '../Feat_Preprocess/epis'; % SB
+% featDir = '../Feat_Preprocess/epis'; % SB
+% featDir = 'AV_20130922_nifti'; % AV
+% featDir = 'RD_20130921_nifti'; % RD
+featDir = 'VB_20130922_nifti'; % VB
+
 load mrInit2_params
 
 for iScan = 1:numel(scans)
     scan = scans(iScan);
     
-    epiDir = dir(sprintf('%s/epi%02d*e2.feat', featDir, scan));
+%     epiDir = dir(sprintf('%s/epi%02d*e2.feat', featDir, scan)); % SB
+    epiDir = dir(sprintf('%s/epi%02d*.feat', featDir, scan));
     motionFile = sprintf('%s/%s/mc/prefiltered_func_data_mcf.par', ...
         featDir, epiDir.name);
     pars = load(motionFile);

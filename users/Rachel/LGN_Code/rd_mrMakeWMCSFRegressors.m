@@ -2,7 +2,7 @@
 
 %% setup
 dt = 1;
-scans = 1:13;
+scans = 1:14;
 rois = {'WM','CSF','wholebrain'};
 
 getRawData = 1;
