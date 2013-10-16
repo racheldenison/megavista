@@ -3,7 +3,7 @@
 % Note: Must be in the correct mrSession folder when running this
 
 %% setup
-subject = 'JN';
+subject = 'AV_20130922';
 dt = 1;
 % scan = 1;
 % rois = {'ROI101','LV1','L_hMTplus','ROI201','RV1','R_hMTplus'};
@@ -50,6 +50,45 @@ switch subject
             'RhMTplus','RLO1','RLO2','RTO1','RTO2',...
             'RIPS0','RIPS1','RIPS2','RIPS3','RIPS4',...
             'ROFA','RFFA','RfAT','RpScene','RmScene','RaScene'};
+    case 'AV_20130922'
+        scans = [1 13 14]; % fix
+        rois = {'lgnROI1_betaM-P_prop20_varThresh000_groupM',...
+            'lgnROI1_betaM-P_prop20_varThresh000_groupP',...
+            'LV1','LV2v','LV2d','LV3v','LV3d','LV4','LV3AB',...
+            'LhMTplus','LLO1','LLO2','LTO1','LTO2',...
+            'LIPS0','LIPS1','LIPS2','LIPS3','LIPS4','LIPS5',...
+            'lgnROI2_betaM-P_prop20_varThresh000_groupM',...
+            'lgnROI2_betaM-P_prop20_varThresh000_groupP',...
+            'RV1','RV2v','RV2d','RV3v','RV3d','RV4',...
+            'RV3A','RV3B',...
+            'RhMTplus','RLO1','RLO2','RTO1',...
+            'RIPS0','RIPS1','RIPS2','RIPS3','RIPS4','RIPS5'};
+    case 'RD_20130921'
+        scans = 
+        rois = {'lgnROI1_betaM-P_prop20_varThresh000_groupM',...
+            'lgnROI1_betaM-P_prop20_varThresh000_groupP',...
+            'LV1','LV2v','LV2d','LV3v','LV3d','LV4','LV3A',...
+            'LhMTplus','LLO1','LLO2','LTO1','LTO2',...
+            'LIPS0','LIPS1','LIPS2','LIPS3','LIPS4','LIPS5',...
+            'lgnROI2_betaM-P_prop20_varThresh000_groupM',...
+            'lgnROI2_betaM-P_prop20_varThresh000_groupP',...
+            'RV1','RV2v','RV2d','RV3v','RV3d','RV4_cons','RV4_lib',...
+            'RV3A','RV3B',...
+            'RhMTplus','RLO1','RLO2','RVO1','RVO2',...
+            'RIPS0','RIPS1','RIPS2','RIPS3','RIPS4','RIPS5'};
+    case 'AV_20111213'
+%         scans = [1 13 14]; % fix
+        rois = {'lgnROI1_betaM-P_prop20_varThresh000_groupM',...
+            'lgnROI1_betaM-P_prop20_varThresh000_groupP',...
+            'LV1','LV2v','LV2d','LV3v','LV3d','LV4','LV3AB',...
+            'LhMTplus','LLO1','LLO2','LTO1','LTO2',...
+            'LIPS0','LIPS1','LIPS2','LIPS3','LIPS4','LIPS5',...
+            'lgnROI2_betaM-P_prop20_varThresh000_groupM',...
+            'lgnROI2_betaM-P_prop20_varThresh000_groupP',...
+            'RV1','RV2v','RV2d','RV3v','RV3d','RV4',...
+            'RV3A','RV3B',...
+            'RhMTplus','RLO1','RLO2','RTO1',...
+            'RIPS0','RIPS1','RIPS2','RIPS3','RIPS4','RIPS5'};
     otherwise
         error('subject not recognized')
 end
@@ -57,9 +96,10 @@ end
 % multiscan-specific params, inevitably specific to M/P localizer experiment
 conds = [0 1 2];
 condNames = {'blank','M','P'};
-selectionCond = 2; % condition number (not index); empty for no timepoint selection
+selectionCond = []; % condition number (not index); empty for no timepoint selection
 if isempty(selectionCond)
-    analysisName = 'mp';
+%     analysisName = 'mp';
+    analysisName = 'fix_allscans'; %%% for non-block
 else
     analysisName = sprintf('mp_%sCond',condNames{conds==selectionCond});
 end
@@ -77,6 +117,7 @@ regressNuisance = 1;
 regressGlobal = 1; % if regressNuisance is 0, this won't matter
 freqRange = [0.009 0.08]; % [0.009 0.08] from Fox 2005
 filtN = 40; % filter order, data must have 3x this length
+% filtN = []; %%% for non-block
 
 saveFigs = 1;
 saveAnalysis = 1;
@@ -108,6 +149,7 @@ analysisFileName = sprintf('%s_%s_%s_%s.mat', ...
 tSeriesAll = [];
 for iScan = 1:numel(scans)
     scan = scans(iScan);
+    fprintf('\n[%s] Scan %d\n', datestr(now), scan)
     
     %% Open hidden Inplane and get sampling frequency
     vw = initHiddenInplane(dt, scan, rois);
@@ -117,13 +159,13 @@ for iScan = 1:numel(scans)
     scanNames{iScan} = scanName;
     
     %% Get ROI mean tseries
-    fprintf('Getting ROI tseries ... ')
+    fprintf('[%s] Getting ROI tseries ... ', datestr(now))
     [roiTSeries, tSerr] = meanTSeries(vw, scan, rois, getRawData);
     roiTSeries = cell2mat(roiTSeries);
     fprintf('done\n')
     
     %% Filter tseries
-    fprintf('Preprocessing\n')
+    fprintf('[%s] Preprocessing\n', datestr(now))
     if filterTSeries
         tSeries = rd_bandpass(double(roiTSeries), freqRange, Fs, filtN);
     else
@@ -131,6 +173,7 @@ for iScan = 1:numel(scans)
     end
     
     %% Regress out motion, motion derivatives, wm, csf
+    b = []; resids = [];
     if regressNuisance
         if filterTSeries
             X = rd_getNuisanceRegressors(scan, regressGlobal, freqRange, Fs, filtN);
@@ -157,7 +200,7 @@ for iScan = 1:numel(scans)
 end
 
 %% Calulcate correlation between all tseries
-fprintf('Calculating correlation\n')
+fprintf('[%s] Calculating correlation\n', datestr(now))
 roiCorr = corr(tSeriesAll);
 
 %% Calculate coherency between all tseries

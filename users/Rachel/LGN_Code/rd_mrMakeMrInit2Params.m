@@ -19,13 +19,13 @@ function params = rd_mrMakeMrInit2Params
 % ------------------------------------------------------------------------
 % Here we have the most common analysis settings that are specific to an
 % individual experiment
-subjectID = 'VB';
-description = 'VB_20130922';
+subjectID = 'PL';
+description = 'PL_20130922';
 comments = '';
 
 % Scan groups
-% scanGroups = {[2 10], 3:9, [1 16], 11, 12, [13 14], 15};  % PL_20130922 {hemi, mp, fix, M, P, MTLoc, FaceScene}
-scanGroups = {[2 10], 3:9, [1 15], 12, 11, [13 14], 16};  % VB_20130922 {hemi, mp, fix, M, P, MTLoc, FaceScene}
+scanGroups = {[2 10], 3:9, [1 16], 11, 12, [13 14], 15};  % PL_20130922 {hemi, mp, fix, M, P, MTLoc, FaceScene}
+% scanGroups = {[2 10], 3:9, [1 15], 12, 11, [13 14], 16};  % VB_20130922 {hemi, mp, fix, M, P, MTLoc, FaceScene}
 % scanGroups = {[2 10], 3:9, [1 13 14], 12, 11};  % AV_20130922 {hemi, mp, fix, M, P}
 % scanGroups = {[2 10], 3:9, [1 11 14], 12, 13};  % RD_20130921 {hemi, mp, fix, M, P}
 % scanGroups = {[2 10], 3:9, 1}; % MN recon 2 {hemi, mp, fix}. mp has 3 variants of epi03.
