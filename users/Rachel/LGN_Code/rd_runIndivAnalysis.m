@@ -1,15 +1,22 @@
 % rd_runIndivAnalysis.m
 
-scanner = '7T';
+% scanner = '7T';
 
 [subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
+
+for scannerType = {'3T','7T'}
+    
+    scanner = scannerType{1};
+
 switch scanner
     case '3T'
         subjectDirs = subjectDirs3T;
-        subjects = [1 2 4 5];
+%         subjects = [1 2 4 5];
+        subjects = [1 2 5];
     case '7T'
         subjectDirs = subjectDirs7T;
-        subjects = [1:5 7 8];
+%         subjects = [1:5 7 8];
+        subjects = [2 4];
 end
 
 % subjects = [2];
@@ -159,12 +166,20 @@ for iSubject = 1:nSubjects
 %     rd_centerOfMassNormGroupStats % (uses files saved from rd_centerOfMassNormGroupAnalysis, coords as proportion of LGN extent)
 
     %% connectivity sequence
-%     rd_fslCreateMotionRegressors % make motion params regressors
+%     rd_mrCreateMotionRegressors % make motion params regressors (opt A)
+%     rd_fslCreateMotionRegressors % make motion params regressors (opt B)
 %     rd_mrMakeWMCSFRegressors % make wm, csf, global regressors
 %     rd_mrMakeMPROI % make M and P ROIs
 %     rd_mrMeanTSeriesCorrelation % ROI-to-ROI connectivity
-%     rd_mrMeanTSeriesCorrelationMultiScan % ROI-to-ROI connectivity, MP blocks
-%     rd_runPlotMPROIConnectivity % makes bar plots of M and P ROI connectivity, can select ROIs from within rd_plotMPROIConnectivity.m
+% selectionConds = [0 1 2];
+% for i = 1:3
+cd ../..
+% try
+%     selectionCond = selectionConds(i);
+    rd_mrMeanTSeriesCorrelationMultiScan % ROI-to-ROI connectivity, MP blocks
+% end
+% end
+    %     rd_runPlotMPROIConnectivity % makes bar plots of M and P ROI connectivity, can select ROIs from within rd_plotMPROIConnectivity.m
 %     rd_connectivityMatDiff % make M/P bar plots, compare fix, M, and P scans
 %     SeedConstruction % ROI-to-voxel connectivity
 
@@ -172,6 +187,7 @@ for iSubject = 1:nSubjects
 %     cd ../..
 %     rd_mrROISize({'ROI101','ROI201'})
 %     [nvox(iSubject,:) varexp(iSubject,:)] = rd_comparePosNegBetaGroups;
+end
 end
 
 

@@ -8,6 +8,13 @@ function motionRegressors = rd_mrCreateMotionRegressors(niftiDir, scans, plotFig
 
 % scans = 2:9;
 % niftiDir = 'AV_20111117_n_nifti';
+
+% [upDir, sessDir] = fileparts(pwd);
+% niftiDir = sprintf('%s_nifti', sessDir);
+% scans = 1:numel(dir(sprintf('%s/*.par', niftiDir)));
+
+% plotFigs = 0;
+
 load mrInit2_params
 
 motionRegressors = [];
@@ -25,6 +32,9 @@ for iScan = 1:numel(scans)
     end
     
     motionRegressors = [motionRegressors; moPars];
+    
+    fprintf('Scan %d: Motion params size = [%d %d]\n', scan, size(moPars))
+    motionParams{scan} = moPars;
 end
 
 fprintf('\nMotion regressors size = [%d %d]\n', size(motionRegressors))
@@ -33,3 +43,6 @@ if plotFigs
     figure
     plot(motionRegressors)
 end
+
+% save motionParams.mat motionParams
+% save motionRegressors.mat motionRegressors
