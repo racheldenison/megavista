@@ -13,10 +13,12 @@ switch scanner
         subjectDirs = subjectDirs3T;
 %         subjects = [1 2 4 5];
         subjects = [1 2 5];
+%         subjects = [];
     case '7T'
         subjectDirs = subjectDirs7T;
 %         subjects = [1:5 7 8];
-        subjects = [2 4];
+        subjects = [2 4 11 12];
+%         subjects = [11 12];
 end
 
 % subjects = [2];
@@ -27,7 +29,7 @@ nSubjects = numel(subjects);
 for iSubject = 1:nSubjects
     subject = subjects(iSubject);
     
-    [fpath fdir] = rd_getAnalysisFilePath(subjectDirs, scanner, subject);
+    [fpath fdir fname sessdir] = rd_getAnalysisFilePath(subjectDirs, scanner, subject);
     
     % go to subject directory
     cd(fdir)
@@ -170,16 +172,13 @@ for iSubject = 1:nSubjects
 %     rd_fslCreateMotionRegressors % make motion params regressors (opt B)
 %     rd_mrMakeWMCSFRegressors % make wm, csf, global regressors
 %     rd_mrMakeMPROI % make M and P ROIs
+cd(sessdir)
+pwd
+try
 %     rd_mrMeanTSeriesCorrelation % ROI-to-ROI connectivity
-% selectionConds = [0 1 2];
-% for i = 1:3
-cd ../..
-% try
-%     selectionCond = selectionConds(i);
     rd_mrMeanTSeriesCorrelationMultiScan % ROI-to-ROI connectivity, MP blocks
-% end
-% end
-    %     rd_runPlotMPROIConnectivity % makes bar plots of M and P ROI connectivity, can select ROIs from within rd_plotMPROIConnectivity.m
+end
+%     rd_runPlotMPROIConnectivity % makes bar plots of M and P ROI connectivity, can select ROIs from within rd_plotMPROIConnectivity.m
 %     rd_connectivityMatDiff % make M/P bar plots, compare fix, M, and P scans
 %     SeedConstruction % ROI-to-voxel connectivity
 
@@ -189,5 +188,8 @@ cd ../..
 %     [nvox(iSubject,:) varexp(iSubject,:)] = rd_comparePosNegBetaGroups;
 end
 end
+
+load gong
+sound(y,Fs)
 
 

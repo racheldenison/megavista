@@ -1,4 +1,4 @@
-function [filePath, fileDirectory, fileName] = rd_getAnalysisFilePath(subjectDirs, scanner, subject, hemi, analysisExtension)
+function [filePath, fileDirectory, fileName, sessionDirectory] = rd_getAnalysisFilePath(subjectDirs, scanner, subject, hemi, analysisExtension)
 %
 % function filePath = rd_getAnalysisFilePath(subjectDirs, scanner, subject, hemi, analysisExtension)
 %
@@ -20,6 +20,9 @@ subjectDir{3} = subjectDirs{subject,3};
 
 fileDirectory = sprintf('/Volumes/Plata1/LGN/Scans/%s/%s/%s/ROIAnalysis/%s',...
     scanner, subjectDir{1}, subjectDir{2}, subjectDir{3});
+
+sessionDirectory = sprintf('/Volumes/Plata1/LGN/Scans/%s/%s/%s',...
+    scanner, subjectDir{1}, subjectDir{2});
 
 if analysisFileSpecified
     fileBase = sprintf('lgnROI%d', hemi);
