@@ -52,8 +52,8 @@ function [X, nh, hrf] = glm_createDesMtx(stim, params, tSeries, reshapeFlag)
 if notDefined('params'),      params = er_defaultParams;  end
 if notDefined('reshapeFlag'), reshapeFlag = 0;            end
 if notDefined('tSeries'),     tSeries = [];               end
-if notDefined('dmNorm'),      dmNorm = 'unitPeak';        end
-% if notDefined('dmNorm'),      dmNorm = 'none';            end
+% if notDefined('dmNorm'),      dmNorm = 'unitPeak';        end
+if notDefined('dmNorm'),      dmNorm = 'none';            end
 if notDefined('hrfNorm'),     hrfNorm = 1;                end % makes hrf peak = 1
 if notDefined('includeMotionRegressors'), includeMotionRegressors = 0; end
 
