@@ -1,15 +1,15 @@
-function [perf, nvox] = rd_metacontrastMVPA(soaCode, thresh)
+function [perf, nvox] = rd_metacontrastMVPA(subjectID, soaCode, thresh)
 
 %% setup
 % soaCode = 6;
 
-% data = load(sprintf('data_SOACode%d.dat', soaCode));
-% class = load(sprintf('dataClass_SOACode%d.dat', soaCode));
-data = load('data_OrientLoc.dat');
-class = load('dataClass_OrientLoc.dat');
+data = load(sprintf('data_SOACode%d.dat', soaCode));
+class = load(sprintf('dataClass_SOACode%d.dat', soaCode));
+% data = load('data_OrientLoc.dat');
+% class = load('dataClass_OrientLoc.dat');
 
-% nRuns = 10;
-nRuns = 6;
+nRuns = 10;
+% nRuns = 6;
 
 %% set up runs vector
 nTrialsPerRun = size(data,1)/nRuns;
@@ -30,7 +30,7 @@ condnames = {'left','right'};
 
 %% INITIALIZING THE SUBJ STRUCTURE
 % start by creating an empty subj structure
-subj = init_subj('meta','CG');
+subj = init_subj('meta',subjectID);
 
 % mask
 subj = init_object(subj,'mask','cube');

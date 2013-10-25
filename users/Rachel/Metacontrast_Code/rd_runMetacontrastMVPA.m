@@ -3,13 +3,15 @@
 %% many SOAs
 % assume we're in a directory named for the ROI being analyzed
 [upDir, ROI] = fileparts(pwd);
+[a b] = fileparts(fileparts(upDir));
+subjectID = b(1:2);
 
 soaCodes = 1:7;
 thresh = 1;
 
 for iSOA = 1:numel(soaCodes)
     soaCode = soaCodes(iSOA);
-    [perf(:,iSOA), nvox(:,iSOA)] = rd_metacontrastMVPA(soaCode, thresh);
+    [perf(:,iSOA), nvox(:,iSOA)] = rd_metacontrastMVPA(subjectID, soaCode, thresh);
 end
 
 perfMean = mean(perf);
@@ -27,14 +29,16 @@ title(sprintf('%s, ANOVA p < %s', ROI, num2str(thresh)))
 %% many thresholds
 % assume we're in a directory named for the ROI being analyzed
 [upDir, ROI] = fileparts(pwd);
+[a b] = fileparts(fileparts(upDir));
+subjectID = b(1:2);
 
-soaCode = 99;
-threshs = [0.01 0.05 0.1 0.2 0.5 1];
-% threshs = [0.1 0.2 0.5 1];
+soaCode = 6;
+% threshs = [0.01 0.05 0.1 0.2 0.5 1];
+threshs = [0.05 0.1 0.2 0.5 1];
 
 for iThresh = 1:numel(threshs)
     thresh = threshs(iThresh);
-    [perf(:,iThresh), nvox(:,iThresh)] = rd_metacontrastMVPA(soaCode, thresh);
+    [perf(:,iThresh), nvox(:,iThresh)] = rd_metacontrastMVPA(subjectID, soaCode, thresh);
 end
 
 perfMean = mean(perf);
