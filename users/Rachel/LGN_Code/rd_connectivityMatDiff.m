@@ -3,46 +3,70 @@ function rd_connectivityMatDiff(voxelSelection, seedHemi)
 %% setup
 % for getting the right data file
 hemi = 1;
+mapName = 'betaM-P';
+groupName = 'M';
 % voxelSelection = 'all'; % 'all','varexp','extreme'
 
 % for choosing which lgnROIs to use as seeds
 % seedHemi = 2;
 
+scanSet = 'steady'; % 'steady' or 'mpBlock'
+
 % which ROIs to plot connectivity for
-% selectedROIs = [];
+selectedROIs = [];
 % selectedROIs = 'MP';
-selectedROIs = {'LV4_cons','LV4_lib','LhMTplus',...
-    'RV4_cons','RV4_lib','RhMTplus'}; 
+% selectedROIs = {'LV4_cons','LV4_lib','LhMTplus',...
+%     'RV4_cons','RV4_lib','RhMTplus'}; 
 
 plotAllFigs = 0;
 
 %% find and load data
 lgnROI = sprintf('lgnROI%d', hemi);
-switch hemi
-    case 1
-        varthresh = '040';
-    case 2
-        varthresh = '050';
-end
+% switch hemi
+%     case 1
+%         varthresh = '040';
+%     case 2
+%         varthresh = '050';
+% end
 switch voxelSelection
     case 'all'
+        prop = 0.2;
+        varThresh = 0;
 %         analysisExt = 'M_etal_rfng_20130806';
-        analysisExt = 'M_etal_rfng_20130809';
+%         analysisExt = 'M_etal_rfng_20130809';
     case 'extreme'
-        analysisExt = 'betaM-P_prop10_varThresh000_groupM_etal_rfng_20130806';
+        prop = 0.1;
+        varThresh = 0;
+%         analysisExt = 'betaM-P_prop10_varThresh000_groupM_etal_rfng_20130806';
     case 'varexp'
-        analysisExt = sprintf('betaM-P_prop20_varThresh%s_groupM_etal_rfng_20130806', varthresh);
+        prop = 0.2;
+%         analysisExt = sprintf('betaM-P_prop20_varThresh%s_groupM_etal_rfng_20130806', varthresh);
     otherwise
         error('voxelSelection not recognized')
 end
 
-% F = load(sprintf('ConnectivityAnalysis/left-right/fix1_%s_%s.mat', lgnROI, analysisExt));
-% M = load(sprintf('ConnectivityAnalysis/left-right/M1_%s_%s.mat', lgnROI, analysisExt));
-% P = load(sprintf('ConnectivityAnalysis/left-right/P1_%s_%s.mat', lgnROI, analysisExt));
+threshDescrip = sprintf('%0.03f', varThresh);
+voxDescrip = ['varThresh' threshDescrip(3:end)];
+            
+analysisExt = sprintf('%s_prop%d_%s_group%s', ...
+    mapName, round(prop*100), voxDescrip, groupName);
 
-F = load(sprintf('ConnectivityAnalysis/left-right/mp_blankCond_%s_%s.mat', lgnROI, analysisExt));
-M = load(sprintf('ConnectivityAnalysis/left-right/mp_MCond_%s_%s.mat', lgnROI, analysisExt));
-P = load(sprintf('ConnectivityAnalysis/left-right/mp_PCond_%s_%s.mat', lgnROI, analysisExt));
+switch scanSet
+    case 'steady'
+        fScan = dir(sprintf('ConnectivityAnalysis/left-right/fix_allscans_%s_%s_*.mat', lgnROI, analysisExt));
+        mScan = dir(sprintf('ConnectivityAnalysis/left-right/M1_%s_%s_*.mat', lgnROI, analysisExt));
+        pScan = dir(sprintf('ConnectivityAnalysis/left-right/P1_%s_%s_*.mat', lgnROI, analysisExt));
+    case 'mpBlock'
+        fScan = dir(sprintf('ConnectivityAnalysis/left-right/mp_blankCond_%s_%s_*.mat', lgnROI, analysisExt));
+        mScan = dir(sprintf('ConnectivityAnalysis/left-right/mp_MCond_%s_%s_*.mat', lgnROI, analysisExt));
+        pScan = dir(sprintf('ConnectivityAnalysis/left-right/mp_PCond_%s_%s_*.mat', lgnROI, analysisExt));
+    otherwise
+        error('scanSet not recognized')
+end
+
+F = load(sprintf('ConnectivityAnalysis/left-right/%s', fScan.name));
+M = load(sprintf('ConnectivityAnalysis/left-right/%s', mScan.name));
+P = load(sprintf('ConnectivityAnalysis/left-right/%s', pScan.name));
 
 analStr = F.preproc.analStr;
 rois = F.rois;

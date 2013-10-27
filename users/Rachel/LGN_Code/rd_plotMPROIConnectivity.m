@@ -36,10 +36,10 @@ else
 end
 
 %% select specific ROIs whose M/P connectivity we will plot
-% selectedROIs = []; use all ROIs
+selectedROIs = []; % use all ROIs
 % selectedROIs = 'MP'; % special option, find the lgnROI rois
-selectedROIs = {'LV4_cons','LV4_lib','LhMTplus',...
-    'RV4_cons','RV4_lib','RhMTplus'}; 
+% selectedROIs = {'LV4_cons','LV4_lib','LhMTplus',...
+%     'RV4_cons','RV4_lib','RhMTplus'}; 
 
 %% determine scan type, this is only used to choose colors
 if any(strfind(scanName,'fix')) || any(strfind(scanName,'blank'))

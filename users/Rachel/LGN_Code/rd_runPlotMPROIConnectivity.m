@@ -15,8 +15,8 @@ analStr = 'rfng';
 measures = {'roiCorr'}; % 'roiCorr','roiCoh' (any combination)
 
 % can loop through these
-scanNames = {'mp_blankCond'}; % 'fix 1', 'M 1', 'P 1'
-voxelSelections = {'all'}; % 'all','extreme','varthresh'
+scanNames = {'fix_allscans','M 1','P 1','mp_blankCond','mp_MCond','mp_PCond'}; % 'fix 1', 'M 1', 'P 1', 'mp_blankCond'
+voxelSelections = {'extreme'}; % 'all','extreme','varthresh'
 seedHemis = [1 2]; % plot connectivity between M and P ROIs in this hemisphere and all other ROIs
 
 % get subject initials from current directory
@@ -25,7 +25,7 @@ subject = sessDir(1:2);
 
 fileBase = sprintf('lgnROI%d', hemi);
 
-saveFigs = 0;
+saveFigs = 1;
 
 %% Loop through scans and voxel selection options
 for iSN = 1:numel(scanNames)
@@ -42,7 +42,8 @@ for iSN = 1:numel(scanNames)
                 case 'all'
                     prop = .2;
                     varThresh = 0;
-                    roi1Name = sprintf('%s_%s', fileBase, groupName);
+%                     roi1Name = sprintf('%s_%s', fileBase, groupName);
+                    roi1Name = [];
                 case 'extreme'
                     prop = .1;
                     varThresh = 0;
