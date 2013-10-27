@@ -16,8 +16,6 @@ seedHemi = 1; % plot connectivity between M and P ROIs in this hemisphere and al
 
 fileBase = sprintf('lgnROI%d', hemi);
 
-roiListPath = '/Volumes/Plata1/LGN/XLS/Connectivity_ROIs.csv';
-
 %% Determine ROI1 name for selected options
 switch voxelSelection
     case 'all'
@@ -32,12 +30,16 @@ end
 
 threshDescrip = sprintf('%0.03f', varThresh);
 voxDescrip = ['varThresh' threshDescrip(3:end)];
-
-% roi1Name = sprintf('%s_%s', fileBase, groupName);
-roi1Name = sprintf('%s_%s_prop%d_%s_group%s', ...
-    fileBase, mapName, round(prop*100), voxDescrip, groupName);
-       
+    
 [subjectDirs3T subjectDirs7T] = rd_lgnSubjects;
+
+%% Get standard ROI list
+roiListPath = '/Volumes/Plata1/LGN/XLS/Connectivity_ROIs.csv';
+fid = fopen('/Volumes/Plata1/LGN/XLS/Connectivity_ROIs.csv');
+rois = textscan(fid, '%s');
+rois = rois{1};
+fclose(fid);
+nROIs = numel(rois);
 
 %% Loop through scanners and subjects
 for scannerType = {'3T','7T'}
@@ -57,8 +59,8 @@ for scannerType = {'3T','7T'}
     
     nSubjects = numel(subjects);
     
-    %% get superset of all ROIs
-%     allROIs = [];
+    %% load all data
+    cIdx = 1;
     for iSubject = 1:nSubjects
         subject = subjects(iSubject);
         
@@ -67,23 +69,43 @@ for scannerType = {'3T','7T'}
         % go to session directory
         cd(sessdir)
         
+        if any(subject == [13 14])
+            roi1Name = sprintf('%s_%s', fileBase, groupName);
+        else
+            roi1Name = sprintf('%s_%s_prop%d_%s_group%s', ...
+                fileBase, mapName, round(prop*100), voxDescrip, groupName);
+        end
+        
         %% find and load data (results of mrMeanCorrelation analysis)
         dataDir = sprintf('ConnectivityAnalysis/left-right');
         dataFileTemplate = sprintf('%s_%s_etal_%s_*', scanName, roi1Name, analStr);
         dataFile = dir(sprintf('%s/%s', dataDir, dataFileTemplate));
         
         if numel(dataFile)==1
-            C = load(sprintf('%s/%s', dataDir, dataFile.name));
+            C(cIdx) = load(sprintf('%s/%s', dataDir, dataFile.name));
         else
             error('Too many or too few data files.')
-        end
-        
-%         allROIs = [allROIs, C.rois];
+        end 
+        cIdx = cIdx + 1;
     end
 end
 
+%% Put connectivity data into a standard ROI matrix for all subjects
+% if name is lgnROI1_M, then change to
+% lgnROI1_betaM-P_prop20_varThresh000_groupM
+roiCorr = nan(
+for iROI = 1:nROIs
+    
+
+%% Group connectivity data
+
+%% get superset of all ROIs
+% allROIs = [];
+% for iC = 1:numel(C)
+%     allROIs = [allROIs, C(cIdx).rois];
+% end
 % uniqueROIs = unique(allROIs);
-% %% print ROIs to screen
+% % print ROIs to screen
 % for iROI = 1:numel(uniqueROIs)
 %     fprintf('\n%s',uniqueROIs{iROI})
 % end
