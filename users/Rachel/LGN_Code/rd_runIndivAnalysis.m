@@ -42,6 +42,7 @@ for iSubject = 1:nSubjects
 %      rd_quickPlotBetaMapsSat
 
     %% display maps on Volume
+%     rd_mrMakeBetaMPParameterMap
 %     rd_mrMakeVolumeParameterMapWithCoThresh
 %     rd_makeROIParameterMap
 %     rd_mrColormapToLbmapBlueRed(VOLUME{1})

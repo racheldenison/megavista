@@ -21,9 +21,11 @@ switch voxelSelection
     case 'all'
         prop = .2;
         varThresh = 0;
+        mpROIs = 1:4;
     case 'extreme'
         prop = .1;
         varThresh = 0;
+        mpROIs = 5:8;
     otherwise
         error('voxelSelection not recognized')
 end
@@ -117,8 +119,9 @@ for iC = 1:numel(C)
 end
     
 %% Group connectivity data
-% groupMean.roiCorr = mean(groupData.roiCorr,3);
-groupMean.roiCorr = nanmean(groupData.roiCorr,3);
+% groupMean.roiCorr = nanmean(groupData.roiCorr,3);
+groupMean.roiCorr = mean(groupData.roiCorr,3);
+groupSte.roiCorr = std(groupData.roiCorr,0,3)./sqrt(numel(C));
 groupN.roiCorr = sum(~isnan(groupData.roiCorr),3);
 
 %% Plot correlation
@@ -145,6 +148,17 @@ set(gca,'YTick',1:numel(roiNames))
 set(gca,'XTickLabel',roiNames)
 set(gca,'YTickLabel',roiNames)
 rotateticklabel(gca,90,'image');
+
+%% Plot MP ROI bars
+figure
+hold on
+plot([0 nROIs], [0 0], '--k')
+% bar(groupMean.roiCorr(mpROIs,:)')
+errorbar(groupMean.roiCorr(mpROIs,:)', groupSte.roiCorr(mpROIs,:)')
+legend([{''} roiNames{mpROIs}])
+set(gca,'XTick',1:numel(roiNames))
+set(gca,'XTickLabel',roiNames)
+rotateticklabel(gca,90);
 
 %% get superset of all ROIs
 % allROIs = [];
