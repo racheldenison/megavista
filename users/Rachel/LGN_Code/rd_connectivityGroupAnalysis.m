@@ -10,8 +10,8 @@ groupName = 'M';
 analStr = 'rfng';
 measures = {'roiCorr'}; % 'roiCorr','roiCoh' (any combination)
 
-scanName = 'fix*'; % 'fix1', 'M1', 'P1', 'mp_blankCond'
-voxelSelection = 'extreme'; % 'all','extreme','varthresh'
+scanName = 'M1'; % 'fix*', 'fix1', 'M1', 'P1', 'mp_blankCond'
+voxelSelection = 'all'; % 'all','extreme','varthresh'
 seedHemi = 1; % plot connectivity between M and P ROIs in this hemisphere and all other ROIs
 
 fileBase = sprintf('lgnROI%d', hemi);
@@ -57,7 +57,9 @@ for scannerType = {'3T','7T'}
         case '7T'
             subjectDirs = subjectDirs7T;
 %             subjects = [2 4 11 12 13 14];
-            subjects = [11 12 13 14];
+            subjects = [11 12 14];
+%             subjects = [2 4 11 12];
+%             subjects = [];
     end
     
     nSubjects = numel(subjects);
@@ -118,35 +120,20 @@ for iC = 1:numel(C)
     end
 end
 
-%% Unify V4s
-% LV4Idx = find(strcmp(rois, 'LV4')); 
-% RV4Idx = find(strcmp(rois, 'RV4')); 
-% LV4ConsIdx = find(strcmp(rois, 'LV4_cons')); 
-% RV4ConsIdx = find(strcmp(rois, 'RV4_cons')); 
-% 
-% % copy V4_cons rows and colums to V4 rows and columns
-% for iC = 1:numel(C)
-%     if ~any(strcmp(C(iC).rois,'LV4'))
-%         groupData.roiCorr(:,LV4Idx,iC) = groupData.roiCorr(:,LV4ConsIdx,iC);
-%         groupData.roiCorr(LV4Idx,:,iC) = groupData.roiCorr(LV4ConsIdx,:,iC);
-%     end
-%     if ~any(strcmp(C(iC).rois,'RV4'))
-%         groupData.roiCorr(:,RV4Idx,iC) = groupData.roiCorr(:,RV4ConsIdx,iC);
-%         groupData.roiCorr(RV4Idx,:,iC) = groupData.roiCorr(RV4ConsIdx,:,iC);
-%     end
-% end
-
+%% Unify V4s and V3ABs
+% copy data from first listed ROI to rows and cols for second listed ROI
 for iC = 1:numel(C)
     groupData.roiCorr(:,:,iC) = rd_connectivityUnifyROIs(...
         groupData.roiCorr(:,:,iC), rois, C(iC).rois, 'LV4_cons', 'LV4');
     groupData.roiCorr(:,:,iC) = rd_connectivityUnifyROIs(...
         groupData.roiCorr(:,:,iC), rois, C(iC).rois, 'RV4_cons', 'RV4');
+    groupData.roiCorr(:,:,iC) = rd_connectivityUnifyROIs(...
+        groupData.roiCorr(:,:,iC), rois, C(iC).rois, 'LV3A', 'LV3AB');
+    groupData.roiCorr(:,:,iC) = rd_connectivityUnifyROIs(...
+        groupData.roiCorr(:,:,iC), rois, C(iC).rois, 'RV3A', 'RV3AB');
 end
 
-
-
 %% just M and P connectivity
-measures = {'roiCorr'};
 for iC = 1:numel(C)
     for iM = 1:numel(measures)
         m = measures{iM};
@@ -201,21 +188,25 @@ hold on
 plot([0 nROIs], [0 0], '--k')
 % bar(groupMean.roiCorr(mpROIs,:)')
 errorbar(groupMean.roiCorr(mpROIs,:)', groupSte.roiCorr(mpROIs,:)')
+ylabel('connectivity')
 legend([{''} roiNames{mpROIs}])
 set(gca,'XTick',1:numel(roiNames))
 set(gca,'XTickLabel',roiNames)
 rotateticklabel(gca,90);
+title(sprintf('%s %s %s %s', roi1Name, m(4:end), analStr, voxelSelection));
 
 %% Plot mpD
 figure
 hold on
 plot([0 nROIs], [0 0], '--k')
 errorbar(groupMPDMean.roiCorr, groupMPDSte.roiCorr)
-ylabel('M-P connectivity difference')
+ylabel('connectivity difference (M ROI - P ROI)')
 legend({'','left LGN','right LGN'})
 set(gca,'XTick',1:numel(roiNames))
 set(gca,'XTickLabel',roiNames)
-rotateticklabel(gca,90)
+rotateticklabel(gca,90);
+title(sprintf('%s %s %s %s', roi1Name, m(4:end), analStr, voxelSelection));
+
 
 %% Plot mpD - V4 and MT
 V4Idx = find(~cellfun('isempty', regexp(roiNames, 'V4'))); 
