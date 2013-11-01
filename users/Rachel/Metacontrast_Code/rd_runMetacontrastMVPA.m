@@ -32,9 +32,9 @@ title(sprintf('%s, ANOVA p < %s', ROI, num2str(thresh)))
 [a b] = fileparts(fileparts(upDir));
 subjectID = b(1:2);
 
-soaCode = 6;
+soaCode = 99;
 % threshs = [0.01 0.05 0.1 0.2 0.5 1];
-threshs = [0.05 0.1 0.2 0.5 1];
+threshs = [0.01 0.02 0.05 0.1 0.2 0.5 1];
 
 for iThresh = 1:numel(threshs)
     thresh = threshs(iThresh);
@@ -48,7 +48,7 @@ figure
 hold on
 plot([threshs(1) threshs(end)], [.5 .5], '--k')
 errorbar(threshs, perfMean, perfSte)
-ylim([.3 .8])
+ylim([.3 1])
 xlabel('ANOVA threshold for voxel selection')
 ylabel('classification performance')
 title(sprintf('%s, SOA code %d', ROI, soaCode))

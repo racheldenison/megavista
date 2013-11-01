@@ -22,7 +22,7 @@ for run = 1:10
 end
 
 nHist = 24;
-Xpad = [zeros(nHist, nConds); X];
+Xpad = [zeros(nHist, nConds); X; zeros(nHist, nConds)];
 
 % get the trial history for nHist duration for each condition
 Xhist = zeros(nHist, nConds, nConds);
@@ -32,13 +32,14 @@ for iCond = 1:nConds
     eventHist = zeros(nHist, nConds, nEvents);
     for iEvent = 1:nEvents
         eventIdx = eventIdxs(iEvent);
-        timeRange = eventIdx-nHist+1:eventIdx;
+        timeRange = eventIdx-nHist+1:eventIdx; % looking backward
+%         timeRange = eventIdx:eventIdx+nHist-1; % looking forward
         eventHist(:,:,iEvent) = Xpad(timeRange,:);
     end
     Xhist(:,:,iCond) = sum(eventHist,3);
 end
 
-XhistAllConds = squeeze(sum(Xhist(:,2:end,:),2)); % don't sum across the blank cond
+XhistAllConds = squeeze(sum(Xhist(:,2:end-1,:),2)); % don't sum across the blank cond
 XhistBlanks = squeeze(Xhist(:,1,:)); % blank only
 
 % plot figs

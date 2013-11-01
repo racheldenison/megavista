@@ -11,7 +11,7 @@ analStr = 'rfng';
 measures = {'roiCorr'}; % 'roiCorr','roiCoh' (any combination)
 
 scanName = 'fix*'; % 'fix1', 'M1', 'P1', 'mp_blankCond'
-voxelSelection = 'all'; % 'all','extreme','varthresh'
+voxelSelection = 'extreme'; % 'all','extreme','varthresh'
 seedHemi = 1; % plot connectivity between M and P ROIs in this hemisphere and all other ROIs
 
 fileBase = sprintf('lgnROI%d', hemi);
@@ -37,7 +37,7 @@ voxDescrip = ['varThresh' threshDescrip(3:end)];
 
 %% Get standard ROI list
 roiListPath = '/Volumes/Plata1/LGN/XLS/Connectivity_ROIs.csv';
-fid = fopen('/Volumes/Plata1/LGN/XLS/Connectivity_ROIs.csv');
+fid = fopen(roiListPath);
 rois = textscan(fid, '%s');
 rois = rois{1};
 fclose(fid);
@@ -71,7 +71,7 @@ for scannerType = {'3T','7T'}
         % go to session directory
         cd(sessdir)
         
-        if any(subject == [13 14])
+        if any(subject == [13 14]) && strcmp(voxelSelection,'all')
             roi1Name = sprintf('%s_%s', fileBase, groupName);
         else
             roi1Name = sprintf('%s_%s_prop%d_%s_group%s', ...
@@ -117,6 +117,49 @@ for iC = 1:numel(C)
         end
     end
 end
+
+%% Unify V4s
+% LV4Idx = find(strcmp(rois, 'LV4')); 
+% RV4Idx = find(strcmp(rois, 'RV4')); 
+% LV4ConsIdx = find(strcmp(rois, 'LV4_cons')); 
+% RV4ConsIdx = find(strcmp(rois, 'RV4_cons')); 
+% 
+% % copy V4_cons rows and colums to V4 rows and columns
+% for iC = 1:numel(C)
+%     if ~any(strcmp(C(iC).rois,'LV4'))
+%         groupData.roiCorr(:,LV4Idx,iC) = groupData.roiCorr(:,LV4ConsIdx,iC);
+%         groupData.roiCorr(LV4Idx,:,iC) = groupData.roiCorr(LV4ConsIdx,:,iC);
+%     end
+%     if ~any(strcmp(C(iC).rois,'RV4'))
+%         groupData.roiCorr(:,RV4Idx,iC) = groupData.roiCorr(:,RV4ConsIdx,iC);
+%         groupData.roiCorr(RV4Idx,:,iC) = groupData.roiCorr(RV4ConsIdx,:,iC);
+%     end
+% end
+
+for iC = 1:numel(C)
+    groupData.roiCorr(:,:,iC) = rd_connectivityUnifyROIs(...
+        groupData.roiCorr(:,:,iC), rois, C(iC).rois, 'LV4_cons', 'LV4');
+    groupData.roiCorr(:,:,iC) = rd_connectivityUnifyROIs(...
+        groupData.roiCorr(:,:,iC), rois, C(iC).rois, 'RV4_cons', 'RV4');
+end
+
+
+
+%% just M and P connectivity
+measures = {'roiCorr'};
+for iC = 1:numel(C)
+    for iM = 1:numel(measures)
+        m = measures{iM};
+        mpC(iC).(m) = groupData.(m)(:,mpROIs,iC);
+        
+        % M ROI - P ROI connectivity difference
+        mpD(iC).(m)(:,1) = mpC(iC).(m)(:,1) - mpC(iC).(m)(:,3); % left LGN
+        mpD(iC).(m)(:,2) = mpC(iC).(m)(:,2) - mpC(iC).(m)(:,4); % right LGN
+    end
+    
+    groupMPC.(m)(:,:,iC) = mpC(iC).(m);
+    groupMPD.(m)(:,:,iC) = mpD(iC).(m);
+end
     
 %% Group connectivity data
 % groupMean.roiCorr = nanmean(groupData.roiCorr,3);
@@ -124,9 +167,12 @@ groupMean.roiCorr = mean(groupData.roiCorr,3);
 groupSte.roiCorr = std(groupData.roiCorr,0,3)./sqrt(numel(C));
 groupN.roiCorr = sum(~isnan(groupData.roiCorr),3);
 
+groupMPDMean.roiCorr = mean(groupMPD.roiCorr,3);
+groupMPDSte.roiCorr = std(groupMPD.roiCorr,0,3)./sqrt(numel(C));
+
 %% Plot correlation
-removeNanRows = 0;
 vals = groupMean.roiCorr;
+removeNanRows = 0;
 if removeNanRows
     [vals nanrows] = rd_removeNanRowsCols(vals);
     roiNames = rois(~nanrows);
@@ -159,6 +205,36 @@ legend([{''} roiNames{mpROIs}])
 set(gca,'XTick',1:numel(roiNames))
 set(gca,'XTickLabel',roiNames)
 rotateticklabel(gca,90);
+
+%% Plot mpD
+figure
+hold on
+plot([0 nROIs], [0 0], '--k')
+errorbar(groupMPDMean.roiCorr, groupMPDSte.roiCorr)
+ylabel('M-P connectivity difference')
+legend({'','left LGN','right LGN'})
+set(gca,'XTick',1:numel(roiNames))
+set(gca,'XTickLabel',roiNames)
+rotateticklabel(gca,90)
+
+%% Plot mpD - V4 and MT
+V4Idx = find(~cellfun('isempty', regexp(roiNames, 'V4'))); 
+MTIdx = find(~cellfun('isempty', regexp(roiNames, 'MT'))); 
+
+V4Vals = groupMPD.roiCorr(V4Idx,:,:);
+MTVals = groupMPD.roiCorr(MTIdx,:,:);
+
+figure
+for iC = 1:numel(C)
+    subplot(numel(C),1,iC)
+    imagesc(V4Vals(:,:,iC)',[-0.3 0.3])
+end
+figure
+for iC = 1:numel(C)
+    subplot(numel(C),1,iC)
+    imagesc(MTVals(:,:,iC)',[-0.3 0.3])
+end
+
 
 %% get superset of all ROIs
 % allROIs = [];

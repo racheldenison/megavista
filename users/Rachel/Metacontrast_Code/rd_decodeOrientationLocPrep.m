@@ -2,10 +2,10 @@
 %
 % see also: rd_metacontrastGLMToSVM.m
 
-dt = 3;
-scan = 13;
+dt = 3; % timed
+scans = [1 14];
 conds = [1 2];
-roiName = 'Mask_V1';
+roiName = 'targetVblank_p7_LV1-V4';
 
 % file I/O
 multiVoxFile = sprintf('ROIAnalysis/%s/orientLoc_multiVoxFigData.mat', roiName);
@@ -16,9 +16,14 @@ classFile = sprintf('ROIAnalysis/%s/dataClass_OrientLoc.dat', roiName);
 load(multiVoxFile)
 
 % make timepoint selector for left and right blocks
-for iCond = 1:numel(conds)
-    cond = conds(iCond);
-    t(:,iCond) = rd_makeTimepointSelector(dt,scan,conds,cond);
+t = [];
+for scan = scans
+    tnow = [];
+    for iCond = 1:numel(conds)
+        cond = conds(iCond);
+        tnow(:,iCond) = rd_makeTimepointSelector(dt,scan,conds,cond);
+    end
+    t = [t; tnow];
 end
 
 % get data and class for each time point
