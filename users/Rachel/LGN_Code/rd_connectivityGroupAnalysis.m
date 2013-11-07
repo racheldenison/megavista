@@ -9,12 +9,17 @@ groupName = 'M';
 
 analStr = 'rfng';
 measures = {'roiCorr'}; % 'roiCorr','roiCoh' (any combination)
+m = measures{1}; % for now, we don't loop over measures anywhere
 
-scanName = 'M1'; % 'fix*', 'fix1', 'M1', 'P1', 'mp_blankCond'
-voxelSelection = 'all'; % 'all','extreme','varthresh'
+scanName = 'fix*'; % 'fix*', 'fix1', 'M1', 'P1', 'mp_blankCond'
+voxelSelection = 'extreme'; % 'all','extreme','varthresh'
 seedHemi = 1; % plot connectivity between M and P ROIs in this hemisphere and all other ROIs
 
 fileBase = sprintf('lgnROI%d', hemi);
+
+% right now, these apply to groupMPD only
+collapseLRLGN = 1;
+collapseLRCortex = 1;
 
 %% Determine ROI1 name for selected options
 switch voxelSelection
@@ -101,7 +106,7 @@ end
 %% Put connectivity data into a standard ROI matrix for all subjects
 % if name is lgnROI1_M, then change to
 % lgnROI1_betaM-P_prop20_varThresh000_groupM
-groupData.roiCorr = nan(nROIs,nROIs,numel(C));
+groupData.(m) = nan(nROIs,nROIs,numel(C));
 for iC = 1:numel(C)
     subROIs = C(iC).rois;
     for iSubROI = 1:numel(subROIs)
@@ -114,8 +119,8 @@ for iC = 1:numel(C)
             roi2StdIdx = find(strcmp(roi2, rois));
             
             % plug the connectivity value into the right place in the standard matrix
-            val = C(iC).results.roiCorr(iSubROI, jSubROI);
-            groupData.roiCorr(roi1StdIdx, roi2StdIdx, iC) = val;
+            val = C(iC).results.(m)(iSubROI, jSubROI);
+            groupData.(m)(roi1StdIdx, roi2StdIdx, iC) = val;
         end
     end
 end
@@ -123,42 +128,65 @@ end
 %% Unify V4s and V3ABs
 % copy data from first listed ROI to rows and cols for second listed ROI
 for iC = 1:numel(C)
-    groupData.roiCorr(:,:,iC) = rd_connectivityUnifyROIs(...
-        groupData.roiCorr(:,:,iC), rois, C(iC).rois, 'LV4_cons', 'LV4');
-    groupData.roiCorr(:,:,iC) = rd_connectivityUnifyROIs(...
-        groupData.roiCorr(:,:,iC), rois, C(iC).rois, 'RV4_cons', 'RV4');
-    groupData.roiCorr(:,:,iC) = rd_connectivityUnifyROIs(...
-        groupData.roiCorr(:,:,iC), rois, C(iC).rois, 'LV3A', 'LV3AB');
-    groupData.roiCorr(:,:,iC) = rd_connectivityUnifyROIs(...
-        groupData.roiCorr(:,:,iC), rois, C(iC).rois, 'RV3A', 'RV3AB');
+    groupData.(m)(:,:,iC) = rd_connectivityUnifyROIs(...
+        groupData.(m)(:,:,iC), rois, C(iC).rois, 'LV4_cons', 'LV4');
+    groupData.(m)(:,:,iC) = rd_connectivityUnifyROIs(...
+        groupData.(m)(:,:,iC), rois, C(iC).rois, 'RV4_cons', 'RV4');
+    groupData.(m)(:,:,iC) = rd_connectivityUnifyROIs(...
+        groupData.(m)(:,:,iC), rois, C(iC).rois, 'LV3A', 'LV3AB');
+    groupData.(m)(:,:,iC) = rd_connectivityUnifyROIs(...
+        groupData.(m)(:,:,iC), rois, C(iC).rois, 'RV3A', 'RV3AB');
 end
 
 %% just M and P connectivity
 for iC = 1:numel(C)
-    for iM = 1:numel(measures)
-        m = measures{iM};
-        mpC(iC).(m) = groupData.(m)(:,mpROIs,iC);
-        
-        % M ROI - P ROI connectivity difference
-        mpD(iC).(m)(:,1) = mpC(iC).(m)(:,1) - mpC(iC).(m)(:,3); % left LGN
-        mpD(iC).(m)(:,2) = mpC(iC).(m)(:,2) - mpC(iC).(m)(:,4); % right LGN
-    end
+    mpC(iC).(m) = groupData.(m)(:,mpROIs,iC);
+    
+    % M ROI - P ROI connectivity difference
+    mpD(iC).(m)(:,1) = mpC(iC).(m)(:,1) - mpC(iC).(m)(:,3); % left LGN
+    mpD(iC).(m)(:,2) = mpC(iC).(m)(:,2) - mpC(iC).(m)(:,4); % right LGN
     
     groupMPC.(m)(:,:,iC) = mpC(iC).(m);
     groupMPD.(m)(:,:,iC) = mpD(iC).(m);
 end
-    
-%% Group connectivity data
-% groupMean.roiCorr = nanmean(groupData.roiCorr,3);
-groupMean.roiCorr = mean(groupData.roiCorr,3);
-groupSte.roiCorr = std(groupData.roiCorr,0,3)./sqrt(numel(C));
-groupN.roiCorr = sum(~isnan(groupData.roiCorr),3);
 
-groupMPDMean.roiCorr = mean(groupMPD.roiCorr,3);
-groupMPDSte.roiCorr = std(groupMPD.roiCorr,0,3)./sqrt(numel(C));
+%% Hack to collapse across left and right LGN
+if collapseLRLGN
+    groupMPD.(m) = mean(groupMPD.(m),2);
+end
+if collapseLRCortex
+    groupMPD.(m) = (groupMPD.(m)(1:2:end,:,:) + groupMPD.(m)(2:2:end,:,:))/2;
+end
+
+%% Special conglomeration of select areas (for figure)
+% after collapsing LR LGN and cortex
+earlyVis = groupMPD.(m)(5:9,:,:);
+V4 = groupMPD.(m)(10,:,:);
+MT = groupMPD.(m)(16,:,:);
+LO = groupMPD.(m)(18:19,:,:);
+specialData = [squeeze(mean(earlyVis,1)) squeeze(mean(MT,1)) squeeze(mean(LO,1))];
+specialMean = mean(specialData);
+specialSte = std(specialData)./sqrt(size(specialData,1));
+
+figure
+hold on
+bar(specialMean)
+errorbar(specialMean, specialSte,'k','LineStyle','None')
+set(gca,'XTick',1:numel(specialMean))
+set(gca,'XTickLabel',{'V1-V3','MT','LO'})
+ylabel('connectivity difference (M ROI - P ROI)')
+
+%% Group connectivity data
+% groupMean.(m) = nanmean(groupData.(m),3);
+groupMean.(m) = mean(groupData.(m),3);
+groupSte.(m) = std(groupData.(m),0,3)./sqrt(numel(C));
+groupN.(m) = sum(~isnan(groupData.(m)),3);
+
+groupMPDMean.(m) = mean(groupMPD.(m),3);
+groupMPDSte.(m) = std(groupMPD.(m),0,3)./sqrt(numel(C));
 
 %% Plot correlation
-vals = groupMean.roiCorr;
+vals = groupMean.(m);
 removeNanRows = 0;
 if removeNanRows
     [vals nanrows] = rd_removeNanRowsCols(vals);
@@ -168,7 +196,7 @@ else
 end
 f(1) = figure;
 clim = rd_zeroCenterCLim(vals);
-% imagesc(tril(roiCorr),clim);
+% imagesc(tril((m)),clim);
 imagesc(vals,clim);
 axis equal
 axis tight
@@ -186,34 +214,44 @@ rotateticklabel(gca,90,'image');
 figure
 hold on
 plot([0 nROIs], [0 0], '--k')
-% bar(groupMean.roiCorr(mpROIs,:)')
-errorbar(groupMean.roiCorr(mpROIs,:)', groupSte.roiCorr(mpROIs,:)')
+% bar(groupMean.(m)(mpROIs,:)')
+errorbar(groupMean.(m)(mpROIs,:)', groupSte.(m)(mpROIs,:)')
 ylabel('connectivity')
 legend([{''} roiNames{mpROIs}])
 set(gca,'XTick',1:numel(roiNames))
 set(gca,'XTickLabel',roiNames)
 rotateticklabel(gca,90);
-title(sprintf('%s %s %s %s', roi1Name, m(4:end), analStr, voxelSelection));
+title(sprintf('%s %s %s %s %s', roi1Name, m(4:end), analStr, voxelSelection, scanName));
 
 %% Plot mpD
 figure
 hold on
-plot([0 nROIs], [0 0], '--k')
-errorbar(groupMPDMean.roiCorr, groupMPDSte.roiCorr)
+if collapseLRCortex
+    plot([0 nROIs/2], [0 0], '--k')
+else
+    plot([0 nROIs], [0 0], '--k')
+end
+errorbar(groupMPDMean.(m), groupMPDSte.(m))
 ylabel('connectivity difference (M ROI - P ROI)')
-legend({'','left LGN','right LGN'})
-set(gca,'XTick',1:numel(roiNames))
-set(gca,'XTickLabel',roiNames)
+if ~collapseLRLGN
+    legend({'','left LGN','right LGN'})
+end
+if collapseLRCortex
+    set(gca,'XTick',1:numel(roiNames)/2)
+    set(gca,'XTickLabel',roiNames(1:2:end))
+else
+    set(gca,'XTick',1:numel(roiNames))
+    set(gca,'XTickLabel',roiNames)
+end
 rotateticklabel(gca,90);
-title(sprintf('%s %s %s %s', roi1Name, m(4:end), analStr, voxelSelection));
-
+title(sprintf('%s %s %s %s %s', roi1Name, m(4:end), analStr, voxelSelection, scanName));
 
 %% Plot mpD - V4 and MT
 V4Idx = find(~cellfun('isempty', regexp(roiNames, 'V4'))); 
 MTIdx = find(~cellfun('isempty', regexp(roiNames, 'MT'))); 
 
-V4Vals = groupMPD.roiCorr(V4Idx,:,:);
-MTVals = groupMPD.roiCorr(MTIdx,:,:);
+V4Vals = groupMPD.(m)(V4Idx,:,:); % first dim: L & R V4
+MTVals = groupMPD.(m)(MTIdx,:,:);
 
 figure
 for iC = 1:numel(C)
