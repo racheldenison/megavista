@@ -3,13 +3,13 @@ function [perf, nvox] = rd_metacontrastMVPA(subjectID, soaCode, thresh)
 %% setup
 % soaCode = 6;
 
-data = load(sprintf('data_SOACode%d.dat', soaCode));
-class = load(sprintf('dataClass_SOACode%d.dat', soaCode));
-% data = load('data_OrientLoc.dat');
-% class = load('dataClass_OrientLoc.dat');
+% data = load(sprintf('data_SOACode%d.dat', soaCode));
+% class = load(sprintf('dataClass_SOACode%d.dat', soaCode));
+data = load('data_OrientLoc.dat');
+class = load('dataClass_OrientLoc.dat');
 
-nRuns = 10;
-% nRuns = 6;
+% nRuns = 10; % Meta
+nRuns = 12; % OrientLoc - 6 per scan
 
 %% set up runs vector
 nTrialsPerRun = size(data,1)/nRuns;
