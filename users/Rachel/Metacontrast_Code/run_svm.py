@@ -56,11 +56,11 @@ def main(condNum=0):
     # dimensions (only works if generateData)
     d = 13
     # number of training and test partitions
-    numsets = 84
+    numsets = 10 # 10 for Meta runs, 84 for OrientLoc
     # FileNames (for !generateData)
-    # condName = 'SOACode{}'.format(condNum)
-    condName = 'OrientLoc'
-    jackknifeType = 'LeaveOneTrialOut'
+    condName = 'SOACode{}'.format(condNum)
+    # condName = 'OrientLoc'
+    jackknifeType = 'LeaveOneRunOut' # use LeaveOneTrialOut for OrientLoc
     if generateData:
         datafolder = jackknifeType + '/Sim_'+ condName + '/'
     else:

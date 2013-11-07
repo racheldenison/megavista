@@ -3,7 +3,7 @@
 %% setup
 vw = INPLANE{1};
 scans = 3:12;
-roi = 'targetVmask_LV1';
+roi = 'targetVblank_p3_fovea';
 
 saveFigs = 1;
 

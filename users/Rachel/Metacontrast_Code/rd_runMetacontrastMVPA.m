@@ -9,6 +9,7 @@ subjectID = b(1:2);
 soaCodes = 1:7;
 thresh = 1;
 
+perf = []; nvox = [];
 for iSOA = 1:numel(soaCodes)
     soaCode = soaCodes(iSOA);
     [perf(:,iSOA), nvox(:,iSOA)] = rd_metacontrastMVPA(subjectID, soaCode, thresh);
@@ -34,8 +35,9 @@ subjectID = b(1:2);
 
 soaCode = 6;
 % threshs = [0.01 0.05 0.1 0.2 0.5 1];
-threshs = [0.05 0.1 0.2 0.5 1];
+threshs = [0.2 0.5 1];
 
+perf = []; nvox = [];
 for iThresh = 1:numel(threshs)
     thresh = threshs(iThresh);
     [perf(:,iThresh), nvox(:,iThresh)] = rd_metacontrastMVPA(subjectID, soaCode, thresh);
