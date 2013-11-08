@@ -62,10 +62,13 @@ wfIdx = setdiff(withinFieldComparisons, comparisonsToExclude);
 bfIdx = setdiff(betweenFieldComparisons, comparisonsToExclude);
 
 vals = mapValCorrs(plotOrder);
+valsFisherZ = atanh(vals);
 
 wfvals = vals(wfIdx);
 bfvals = vals(bfIdx);
 allvals = [wfvals bfvals];
+
+wfvalsFisherZ = atanh(wfvals);
 
 wfMean = mean(wfvals);
 bfMean = mean(bfvals);
@@ -75,4 +78,9 @@ allMean = mean(allvals);
 [h p ci stat] = ttest2(wfvals, bfvals)
 
 % are correlations different from zero, as a group?
-[h p ci stat] = ttest(vals)
+% [h p ci stat] = ttest(vals)
+[h p ci stat] = ttest(valsFisherZ)
+
+% find the average with Fisher z scores
+valsZMean = tanh(mean(valsFisherZ));
+wfvalsZMean = tanh(mean(wfvalsFisherZ));
