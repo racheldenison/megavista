@@ -62,7 +62,7 @@ for scannerType = {'3T','7T'}
         case '7T'
             subjectDirs = subjectDirs7T;
 %             subjects = [2 4 11 12 13 14];
-            subjects = [11 12 14];
+            subjects = [11 12 13 14];
 %             subjects = [2 4 11 12];
 %             subjects = [];
     end
@@ -125,6 +125,9 @@ for iC = 1:numel(C)
     end
 end
 
+%% Fisher z transform
+groupData.(m) = atanh(groupData.(m));
+
 %% Unify V4s and V3ABs
 % copy data from first listed ROI to rows and cols for second listed ROI
 for iC = 1:numel(C)
@@ -152,18 +155,39 @@ end
 
 %% Hack to collapse across left and right LGN
 if collapseLRLGN
+    groupMPC.(m) = [mean(groupMPC.(m)(:,1:2,:),2) mean(groupMPC.(m)(:,3:4,:),2)];
     groupMPD.(m) = mean(groupMPD.(m),2);
 end
 if collapseLRCortex
+    groupMPC.(m) = (groupMPC.(m)(1:2:end,:,:) + groupMPC.(m)(2:2:end,:,:))/2;
     groupMPD.(m) = (groupMPD.(m)(1:2:end,:,:) + groupMPD.(m)(2:2:end,:,:))/2;
 end
 
 %% Special conglomeration of select areas (for figure)
 % after collapsing LR LGN and cortex
+% % MPC
+% earlyVis = groupMPC.(m)(5:9,:,:);
+% V4 = groupMPC.(m)(10,:,:);
+% MT = groupMPC.(m)(16,:,:);
+% LO = groupMPC.(m)(18:19,:,:);
+% 
+% specialData = cat(1, mean(earlyVis,1), mean(MT,1), mean(LO,1));
+% specialMean = mean(specialData,3);
+% specialSte = std(specialData,0,3)./sqrt(size(specialData,3));
+% 
+% figure
+% barweb(specialMean, specialSte)
+% ylim('auto')
+% set(gca,'XTick',1:numel(specialMean))
+% set(gca,'XTickLabel',{'V1-V3','MT','LO'})
+% ylabel('connectivity')
+
+% MPD
 earlyVis = groupMPD.(m)(5:9,:,:);
 V4 = groupMPD.(m)(10,:,:);
 MT = groupMPD.(m)(16,:,:);
 LO = groupMPD.(m)(18:19,:,:);
+
 specialData = [squeeze(mean(earlyVis,1)) squeeze(mean(MT,1)) squeeze(mean(LO,1))];
 specialMean = mean(specialData);
 specialSte = std(specialData)./sqrt(size(specialData,1));
