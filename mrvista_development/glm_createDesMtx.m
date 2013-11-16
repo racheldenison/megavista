@@ -165,7 +165,7 @@ end
 if includeMotionRegressors
     load motionRegressors.mat
     X = [X motionRegressors];
-    fprintf('Added motion regressors to design matrix\n')
+    fprintf('[glm_createDesMtx]: Added motion regressors to design matrix\n')
 end
 
 % The design matrix normalization can be specified by dmNorm.  This is not
@@ -181,13 +181,13 @@ switch lower(dmNorm)
         for i = 1:size(X, 2)
             X(:,i) = X(:,i) ./ max(abs(X(:,i)));
         end
-        disp('Normalizing design matrix columns: unitPeak')
+        disp('[glm_createDesMtx]: Normalizing design matrix columns: unitPeak')
     case 'unitamp'
-        disp('Not yet implemented')
+        disp('[glm_createDesMtx]: unitamp not yet implemented')
     case 'spm'
-        disp('Not yet implemented')
+        disp('[glm_createDesMtx]: spm not yet implemented')
     otherwise
-        disp('Not normalizing the design matrix columns')
+        disp('[glm_createDesMtx]: Not normalizing the design matrix columns')
 end
 
 if reshapeFlag==1
