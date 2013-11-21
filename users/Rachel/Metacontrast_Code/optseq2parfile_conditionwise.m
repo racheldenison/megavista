@@ -5,7 +5,7 @@ function optseq2parfile_conditionwise(subjectID,scanDate,run)
 %run
 %Writes to a par file for use with mrVista CONDITION-WISE ANALYSIS!
 
-optseqFile = uigetfile('*.*');
+optseqFile = uigetfile('Stimuli/optseq/*.*');
 fid = fopen(['Stimuli/optseq/' optseqFile]);
 stimOrder = textscan(fid, '%f%f%f%f%s');
 fclose(fid);

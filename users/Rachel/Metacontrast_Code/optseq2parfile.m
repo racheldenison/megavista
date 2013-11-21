@@ -6,7 +6,7 @@ function optseq2parfile(subjectID,scanDate,run)
 %Assigns each trial its own number, writes to a par file for use with
 %mrVista
 
-optseqFile = uigetfile('*.*');
+optseqFile = uigetfile('Stimuli/optseq/*.*');
 fid = fopen(['Stimuli/optseq/' optseqFile]);
 stimOrder = textscan(fid, '%f%f%f%f%s');
 fclose(fid);
