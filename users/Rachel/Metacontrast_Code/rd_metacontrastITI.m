@@ -15,3 +15,16 @@ plot(trialISIs,'.')
 
 figure
 hist(trialISIs)
+
+
+
+
+
+
+% comparing the optseq cue times
+% set opt = first 2 columns of optseq file
+optCueTimes = opt(opt(:,2)>0,1);
+figure
+plot(diff(optCueTimes),'.')
+figure
+scatter(optCueTimes,realCueTimes)
