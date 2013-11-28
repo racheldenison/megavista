@@ -14,7 +14,8 @@ end
 
 if ischar(hrf)      % name of a 'canned' HRF: get from glm_hrf
     params.glmHRF = hrf;
-    hrf = glm_hrf(params);
+    paramsTR1s.glmHRF = hrf; % use TR 1 s for HRF
+    hrf = glm_hrf(paramsTR1s); % use TR 1 s for HRF
 end
 
 % params
