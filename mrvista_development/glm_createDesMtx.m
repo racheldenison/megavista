@@ -56,6 +56,12 @@ function [X, nh, hrf] = glm_createDesMtx(stim, params, tSeries, reshapeFlag)
 % integer number of seconds. Also, it does not work for the delta function
 % or deconvolve HRF options.
 %
+% RD, 2013 November 28
+% Added an option to "transformXSpecial". This is extremely idiosyncratic
+% for my purposes. I've tried to make it somewhat general in case you need
+% to do your own special design matrix transformation. But otherwise, this
+% option should be OFF.
+%
 if notDefined('params'),      params = er_defaultParams;  end
 if notDefined('reshapeFlag'), reshapeFlag = 0;            end
 if notDefined('tSeries'),     tSeries = [];               end
@@ -64,6 +70,7 @@ if notDefined('dmNorm'),      dmNorm = 'none';            end
 if notDefined('hrfNorm'),     hrfNorm = 1;                end % makes hrf peak = 1
 if notDefined('includeMotionRegressors'), includeMotionRegressors = 0; end
 if notDefined('use1sResolution'), use1sResolution = 1;    end
+if notDefined('transformXSpecial'), transformXSpecial = 1;    end
 
 tr = params.framePeriod;
 
@@ -184,6 +191,12 @@ else
     % we're only returning one predictor per condition: the
     % nh variable should note this:
     nh = 1;
+end
+
+% Substitute special matrix if requested
+if transformXSpecial
+    disp('[glm_createDesMtx] NB! Substituting custom Metacontrast GLM!')
+    X = rd_substituteCustomGLMMetacontrast(X, stim);
 end
 
 % Add motion regressors to the design matrix if requested
