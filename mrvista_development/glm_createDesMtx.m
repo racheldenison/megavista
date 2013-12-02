@@ -49,6 +49,19 @@ function [X, nh, hrf] = glm_createDesMtx(stim, params, tSeries, reshapeFlag)
 % probably be incorporated into params, but I have treated it like dmNorm
 % for now.
 %
+% RD, 2013 November 26
+% Added an option to "use1sResolution", which is necessary to get the
+% timing right if you have events that do not start on the TR. However, it
+% assumes that your events start on the second and that your TR is an
+% integer number of seconds. Also, it does not work for the delta function
+% or deconvolve HRF options.
+%
+% RD, 2013 November 28
+% Added an option to "transformXSpecial". This is extremely idiosyncratic
+% for my purposes. I've tried to make it somewhat general in case you need
+% to do your own special design matrix transformation. But otherwise, this
+% option should be OFF.
+%
 if notDefined('params'),      params = er_defaultParams;  end
 if notDefined('reshapeFlag'), reshapeFlag = 0;            end
 if notDefined('tSeries'),     tSeries = [];               end
@@ -56,6 +69,8 @@ if notDefined('dmNorm'),      dmNorm = 'unitPeak';        end
 % if notDefined('dmNorm'),      dmNorm = 'none';            end
 if notDefined('hrfNorm'),     hrfNorm = 1;                end % makes hrf peak = 1
 if notDefined('includeMotionRegressors'), includeMotionRegressors = 0; end
+if notDefined('use1sResolution'), use1sResolution = 1;    end
+if notDefined('transformXSpecial'), transformXSpecial = 1;    end
 
 tr = params.framePeriod;
 
@@ -135,11 +150,27 @@ else
     %%%%%%%%%%%%%%%%
     % applying HRF %
     %%%%%%%%%%%%%%%%
+    % RD: I am replacing the following with the 2 sections below to allow
+    % us to use the use1sResolution option
+%     % first, construct the impulse response function: 
+%     if params.glmHRF==1         % estimate from SNR conds
+%         hrf = glm_hrf(params, tSeries, stim);
+%     else                        % use preset HRF
+%         hrf = glm_hrf(params);
+%     end
+
+    hrfParams = params;
+    % If we are using the 1s resolution, take the TR 1 s 
+    % for purposes of defining the HRF
+    if use1sResolution
+        hrfParams.framePeriod = 1; 
+    end 
+
     % first, construct the impulse response function: 
     if params.glmHRF==1         % estimate from SNR conds
-        hrf = glm_hrf(params, tSeries, stim);
+        hrf = glm_hrf(hrfParams, tSeries, stim);
     else                        % use preset HRF
-        hrf = glm_hrf(params);
+        hrf = glm_hrf(hrfParams);
     end
     
     % normalize HRF so that its max = 1
@@ -149,11 +180,23 @@ else
     
     % apply HRF -- return a 2D matrix covering whole time course
     % (at this point, the HRF is in units of MR frames, not seconds)
-    [X, hrf] = glm_convolve(stim, params, hrf, nFrames);    
+    if use1sResolution
+        disp('[glm_createDesMtx] Using 1-s resolution to create design matrix')
+        [X, hrf] = glm_convolve_1s(stim, params, hrf, nFrames); % hrf in seconds
+        hrf = hrf(1:tr:end); % downsample hrf to frames
+    else
+        [X, hrf] = glm_convolve(stim, params, hrf, nFrames); % hrf in frames  
+    end
     
     % we're only returning one predictor per condition: the
     % nh variable should note this:
     nh = 1;
+end
+
+% Substitute special matrix if requested
+if transformXSpecial
+    disp('[glm_createDesMtx] NB! Substituting custom Metacontrast GLM!')
+    X = rd_substituteCustomGLMMetacontrast(X, stim);
 end
 
 % Add motion regressors to the design matrix if requested
@@ -165,7 +208,7 @@ end
 if includeMotionRegressors
     load motionRegressors.mat
     X = [X motionRegressors];
-    fprintf('[glm_createDesMtx]: Added motion regressors to design matrix\n')
+    fprintf('[glm_createDesMtx] Added motion regressors to design matrix\n')
 end
 
 % The design matrix normalization can be specified by dmNorm.  This is not
@@ -181,13 +224,13 @@ switch lower(dmNorm)
         for i = 1:size(X, 2)
             X(:,i) = X(:,i) ./ max(abs(X(:,i)));
         end
-        disp('[glm_createDesMtx]: Normalizing design matrix columns: unitPeak')
+        disp('[glm_createDesMtx] Normalizing design matrix columns: unitPeak')
     case 'unitamp'
-        disp('[glm_createDesMtx]: unitamp not yet implemented')
+        disp('[glm_createDesMtx] unitamp not yet implemented')
     case 'spm'
-        disp('[glm_createDesMtx]: spm not yet implemented')
+        disp('[glm_createDesMtx] spm not yet implemented')
     otherwise
-        disp('[glm_createDesMtx]: Not normalizing the design matrix columns')
+        disp('[glm_createDesMtx] Not normalizing the design matrix columns')
 end
 
 if reshapeFlag==1
