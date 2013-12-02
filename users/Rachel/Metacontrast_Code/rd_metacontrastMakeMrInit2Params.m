@@ -21,13 +21,14 @@ function params = rd_metacontrastMakeMrInit2Params
 % ------------------------------------------------------------------------
 % Here we have the most common analysis settings that are specific to an
 % individual experiment
-subjectID = 'WC';
-description = 'WC_20131120_n';
+subjectID = 'GM';
+description = 'GM_20131122_n';
 comments = '';
 
 % Scan groups
 % scanGroups = {[1 14], [2 13], 3:12}; % {orientation, targetmask, metacontrast}
-scanGroups = {[2 13], [1 14], 3:12}; % WC {orientation, targetmask, metacontrast}
+% scanGroups = {[2 13], [1 14], 3:12}; % WC {orientation, targetmask, metacontrast}
+scanGroups = {[13 14], [1 12], 2:11}; % GM {orientation, targetmask, metacontrast}
 
 % Keep frames
 scanGroupKeepFrames = {[3 -1], [3 -1], [3 -1]}; % [frames-to-discard frames-to-keep]
