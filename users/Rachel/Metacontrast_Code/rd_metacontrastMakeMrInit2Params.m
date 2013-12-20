@@ -21,8 +21,8 @@ function params = rd_metacontrastMakeMrInit2Params
 % ------------------------------------------------------------------------
 % Here we have the most common analysis settings that are specific to an
 % individual experiment
-subjectID = 'EL';
-description = 'EL_20131211_n';
+subjectID = 'MS';
+description = 'MS_20131218_n';
 comments = '';
 
 % Scan groups
