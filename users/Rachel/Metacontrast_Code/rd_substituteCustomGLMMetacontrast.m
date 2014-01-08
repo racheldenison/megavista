@@ -12,6 +12,9 @@ function X = rd_substituteCustomGLMMetacontrast(X0, trials)
 % load behav data
 load behav.mat
 
+% scale seen to match the range of accuracies - 0.5 to 1
+seen = seen./2 + 0.5;
+
 % the following is based on glm_convolve.m
 nConds = length(unique(trials.cond(trials.cond>0)));
 nRuns = length(unique(trials.run));

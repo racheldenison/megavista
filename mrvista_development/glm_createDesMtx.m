@@ -70,7 +70,7 @@ if notDefined('dmNorm'),      dmNorm = 'none';            end
 if notDefined('hrfNorm'),     hrfNorm = 1;                end % makes hrf peak = 1
 if notDefined('includeMotionRegressors'), includeMotionRegressors = 0; end
 if notDefined('use1sResolution'), use1sResolution = 1;    end
-if notDefined('transformXSpecial'), transformXSpecial = 1;    end
+if notDefined('transformXSpecial'), transformXSpecial = 0;    end
 
 tr = params.framePeriod;
 
