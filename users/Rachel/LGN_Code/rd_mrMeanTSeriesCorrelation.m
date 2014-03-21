@@ -66,7 +66,7 @@ switch subject
             'RIPS0','RIPS1','RIPS2','RIPS3','RIPS4',...
             'ROFA','RFFA','RfAT','RpScene','RmScene','RaScene'};
     case 'AV_20130922' % 7T2
-        scan = 11; % 12=M, 11=P
+        scan = 1; % 1,13,14=fix, 12=M, 11=P
         rois = {LLGN_M,...
             LLGN_P,...
             'LV1','LV2v','LV2d','LV3v','LV3d','LV4','LV3AB',...
@@ -79,7 +79,7 @@ switch subject
             'RhMTplus','RLO1','RLO2','RTO1',...
             'RIPS0','RIPS1','RIPS2','RIPS3','RIPS4','RIPS5'};
     case 'RD_20130921' % 7T2
-        scan = 13; % 12=M, 13=P
+        scan = 1; % 1,11,14=fix, 12=M, 13=P
         rois = {LLGN_M,...
             LLGN_P,...
             'LV1','LV2v','LV2d','LV3v','LV3d','LV4','LV3A',...
@@ -106,6 +106,7 @@ filterTSeries = 1;
 regressNuisance = 1;
 regressGlobal = 1; % if regressNuisance is 0, this won't matter
 freqRange = [0.009 0.08]; % [0.009 0.08] from Fox 2005
+filtN = 50; % filter order, data must have 3x this length
 
 saveFigs = 1;
 saveAnalysis = 1;
@@ -149,7 +150,7 @@ fprintf('done\n')
 %% Filter tseries
 fprintf('[%s] Preprocessing\n', datestr(now))
 if filterTSeries
-    tSeries = rd_bandpass(double(roiTSeries), freqRange, Fs);
+    tSeries = rd_bandpass(double(roiTSeries), freqRange, Fs, filtN);
 else
     tSeries = roiTSeries;
 end
@@ -158,7 +159,7 @@ end
 b = []; resids = [];
 if regressNuisance
     if filterTSeries
-        X = rd_getNuisanceRegressors(scan, regressGlobal, freqRange, Fs);
+        X = rd_getNuisanceRegressors(scan, regressGlobal, freqRange, Fs, filtN);
     else
         X = rd_getNuisanceRegressors(scan, regressGlobal);
     end
@@ -241,6 +242,7 @@ if saveAnalysis
     preproc.regressNuisance = regressNuisance;
     preproc.regressGlobal = regressGlobal;
     preproc.freqRange = freqRange;
+    preproc.filtN = filtN;
     preproc.analStr = analStr;
     
     resuts.tSeries = tSeries;
