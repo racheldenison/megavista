@@ -245,7 +245,7 @@ if saveAnalysis
     preproc.filtN = filtN;
     preproc.analStr = analStr;
     
-    resuts.tSeries = tSeries;
+    results.tSeries = tSeries;
     results.roiCorr = roiCorr;
     results.roiCoh = roiCoh;
     results.roiPhase = roiPhase;
