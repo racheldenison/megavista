@@ -12,13 +12,14 @@ switch scanner
     case '3T'
         subjectDirs = subjectDirs3T;
 %         subjects = [1 2 4 5];
-        subjects = [1 2 5];
-%         subjects = [];
+%         subjects = [1 2 5];
+        subjects = [];
     case '7T'
         subjectDirs = subjectDirs7T;
 %         subjects = [1:5 7 8];
-        subjects = [2 4 11 12];
+%         subjects = [2 4 11 12];
 %         subjects = [11 12];
+        subjects = [13 14];
 end
 
 % subjects = [2];
