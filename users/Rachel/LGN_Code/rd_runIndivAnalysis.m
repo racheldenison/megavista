@@ -176,10 +176,10 @@ for iSubject = 1:nSubjects
 %     rd_mrMakeMPROI % make M and P ROIs
 cd(sessdir)
 pwd
-try
-%     rd_mrMeanTSeriesCorrelation % ROI-to-ROI connectivity
-    rd_mrMeanTSeriesCorrelationMultiScan % ROI-to-ROI connectivity, MP blocks
-end
+% try
+    rd_mrMeanTSeriesCorrelation % ROI-to-ROI connectivity
+%     rd_mrMeanTSeriesCorrelationMultiScan % ROI-to-ROI connectivity, MP blocks
+% end
 %     rd_runPlotMPROIConnectivity % makes bar plots of M and P ROI connectivity, can select ROIs from within rd_plotMPROIConnectivity.m
 %     rd_connectivityMatDiff % make M/P bar plots, compare fix, M, and P scans
 %     SeedConstruction % ROI-to-voxel connectivity
