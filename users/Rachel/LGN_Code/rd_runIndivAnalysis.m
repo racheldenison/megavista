@@ -16,10 +16,11 @@ switch scanner
         subjects = [];
     case '7T'
         subjectDirs = subjectDirs7T;
-%         subjects = [1:5 7 8];
+        subjects = [1:5 7 8];
 %         subjects = [2 4 11 12];
 %         subjects = [11 12];
-        subjects = [13 14];
+%         subjects = [13 14];
+%         subjects = [];
 end
 
 % subjects = [2];
@@ -40,7 +41,7 @@ for iSubject = 1:nSubjects
 %      load ../../mrSESSION.mat
 %      voxelSize = mrSESSION.functionals(1).voxelSize;
 %      aspectRatio = voxelSize([3 1 2]);
-%      rd_quickPlotBetaMapsSat
+     rd_quickPlotBetaMapsSat
 
     %% display maps on Volume
 %     rd_mrMakeBetaMPParameterMap
@@ -174,10 +175,10 @@ for iSubject = 1:nSubjects
 %     rd_fslCreateMotionRegressors % make motion params regressors (opt B)
 %     rd_mrMakeWMCSFRegressors % make wm, csf, global regressors
 %     rd_mrMakeMPROI % make M and P ROIs
-cd(sessdir)
-pwd
+% cd(sessdir)
+% pwd
 % try
-    rd_mrMeanTSeriesCorrelation % ROI-to-ROI connectivity
+%     rd_mrMeanTSeriesCorrelation % ROI-to-ROI connectivity
 %     rd_mrMeanTSeriesCorrelationMultiScan % ROI-to-ROI connectivity, MP blocks
 % end
 %     rd_runPlotMPROIConnectivity % makes bar plots of M and P ROI connectivity, can select ROIs from within rd_plotMPROIConnectivity.m
@@ -191,7 +192,7 @@ pwd
 end
 end
 
-load gong
-sound(y,Fs)
+% load gong
+% sound(y,Fs)
 
 
