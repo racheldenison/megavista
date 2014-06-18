@@ -12,8 +12,10 @@ switch scanner
     case '3T'
         subjectDirs = subjectDirs3T;
 %         subjects = [1 2 4 5];
+%         subjects = [1 4 5];
 %         subjects = [1 2 5];
         subjects = [];
+%         subjects = 2;
     case '7T'
         subjectDirs = subjectDirs7T;
         subjects = [1:5 7 8];
@@ -38,10 +40,14 @@ for iSubject = 1:nSubjects
     
     % run script 
      %% plot maps
-%      load ../../mrSESSION.mat
-%      voxelSize = mrSESSION.functionals(1).voxelSize;
-%      aspectRatio = voxelSize([3 1 2]);
+     load ../../mrSESSION.mat
+     voxelSize = mrSESSION.functionals(1).voxelSize;
+     aspectRatio = voxelSize([3 1 2]);
      rd_quickPlotBetaMapsSat
+     
+     hemi = 1; % must also change in rd_quickPlotBetaMapsSat
+     mapSaveName = sprintf('betaM-PVarThresh_%s_S%d_hemi%d', scanner, subject, hemi);
+     print(gcf,'-djpeg',sprintf('~/Desktop/abs_size_figs/%s', mapSaveName));
 
     %% display maps on Volume
 %     rd_mrMakeBetaMPParameterMap

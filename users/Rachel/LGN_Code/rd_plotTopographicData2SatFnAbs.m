@@ -19,7 +19,7 @@ function brainSliceMaps = rd_plotTopographicData2SatFnAbs(hemi, voxelSelectionOp
 
 %% Setup
 plotAbsSize = 1;
-s = 0.5; % scaling factor for width and height (in cm) if plotting absolute size
+s = 0.09; % scaling factor for width and height (in cm) if plotting absolute size
 if plotAbsSize
     disp('Plotting absolute size. Note! This might only work for slicing coronal.')
 end
@@ -281,7 +281,7 @@ if plotAbsSize
     figPos = get(f1, 'Position');
     % position_rectangle = [left, bottom, width, height]
     nSlices = size(brainMapToPlot,dimToSlice);
-    cushions = 0.5*ones(1,nSlices);
+    cushions = 0.1*ones(1,nSlices);
     widths = nAxCols*ones(1,nSlices)*aspectRatio(2)*s;
     height = nAxRows*aspectRatio(1)*s;
     lefts = ones(1,nSlices) + cumsum(widths+cushions); % - widths(1)
@@ -292,7 +292,7 @@ if plotAbsSize
     set(f1,'Position',figPos);
 end
 
-for iSlice = 1:size(brainMapToPlot,dimToSlice
+for iSlice = 1:size(brainMapToPlot,dimToSlice)
     
     if plotAbsSize
         axRect = [lefts(iSlice) bottom widths(iSlice) height];
